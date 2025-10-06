@@ -1,0 +1,738 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GestionReparations</class>
+ <widget class="QMainWindow" name="GestionReparations">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1458</width>
+    <height>800</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Smart Repair Hub - Gestion des Réparations</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QMainWindow {
+    background-color: #2c3147;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+QGroupBox {
+    font-weight: bold;
+    color: #35b95f;
+    border: 2px solid #35b95f;
+    border-radius: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    background-color: #2c3147;
+}
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 5px 0 5px;
+}
+QPushButton {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+QPushButton:hover {
+    background-color: #0056b3;
+}
+QPushButton:disabled {
+    background-color: #6C757D;
+}
+QPushButton.warning {
+    background-color: #FD7E14;
+}
+QPushButton.warning:hover {
+    background-color: #e56a00;
+}
+QPushButton.success {
+    background-color: #28A745;
+}
+QPushButton.success:hover {
+    background-color: #218838;
+}
+QLineEdit, QComboBox, QDateEdit, QTextEdit {
+    padding: 6px;
+    border: 1px solid #6C757D;
+    border-radius: 4px;
+    background-color: white;
+    color: black;
+}
+QTableView {
+    border: 1px solid #6C757D;
+    border-radius: 4px;
+    background-color: white;
+    gridline-color: #e0e0e0;
+    selection-background-color: #007BFF;
+}
+QTableView::item:selected {
+    background-color: #007BFF;
+    color: white;
+}
+QHeaderView::section {
+    background-color: #007BFF;
+    color: white;
+    padding: 8px;
+    border: none;
+    font-weight: bold;
+}
+QTabWidget::pane {
+    border: 1px solid #6C757D;
+    border-radius: 4px;
+    background-color: white;
+}
+QTabBar::tab {
+    background-color: #e9ecef;
+    color: #6C757D;
+    padding: 8px 15px;
+    margin-right: 2px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+QTabBar::tab:selected {
+    background-color: #35b95f;
+    color: white;
+}
+QLabel {
+    color: white;
+}
+QLabel.title {
+    font-size: 16px;
+    color: #35b95f;
+}</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayoutHeader">
+      <item>
+       <widget class="QLabel" name="labelTitle">
+        <property name="styleSheet">
+         <string notr="true">font: 700 40pt "Segoe UI";
+color: #35b95f;
+margin: 0px;
+background-color: #2c3147;</string>
+        </property>
+        <property name="text">
+         <string>Gestion des Réparations</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelLogo">
+        <property name="minimumSize">
+         <size>
+          <width>120</width>
+          <height>80</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>120</width>
+          <height>80</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: transparent;
+border: none;</string>
+        </property>
+        <property name="text">
+         <string>[LOGO]</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="styleSheet">
+       <string notr="true">QTabWidget::pane {
+    border: 2px solid #2c3147;
+    border-radius: 8px;
+    background-color: #2c3147;
+}
+QTabBar::tab {
+    background-color: #e9ecef;
+    color: #6C757D;
+    padding: 10px 20px;
+    margin-right: 2px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    font-weight: bold;
+}
+QTabBar::tab:selected {
+    background-color: #35b95f;
+    color: white;
+}
+QTabBar::tab:hover {
+    background-color: #d0d0d0;
+}</string>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tabGestion">
+       <property name="styleSheet">
+        <string notr="true">background-color: #2c3147;</string>
+       </property>
+       <attribute name="title">
+        <string>Gestion des Réparations</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QGroupBox" name="groupBoxFormulaire">
+          <property name="minimumSize">
+           <size>
+            <width>400</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font: 700 16pt "Segoe UI";
+color: #35b95f;
+border-color: #35b95f;
+background-color: #2c3147;</string>
+          </property>
+          <property name="title">
+           <string>Formulaire Réparation</string>
+          </property>
+          <layout class="QFormLayout" name="formLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="labelCIN">
+             <property name="styleSheet">
+              <string notr="true">font: 14pt "Segoe UI";
+color: white;</string>
+             </property>
+             <property name="text">
+              <string>CIN Client:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineEditCIN">
+             <property name="styleSheet">
+              <string notr="true">background-color: white;
+color: black;
+border: 1px solid #6C757D;</string>
+             </property>
+             <property name="placeholderText">
+              <string>Entrez le CIN</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="labelMatricule">
+             <property name="styleSheet">
+              <string notr="true">font: 14pt "Segoe UI";
+color: white;</string>
+             </property>
+             <property name="text">
+              <string>Matricule Appareil:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="lineEditMatricule">
+             <property name="styleSheet">
+              <string notr="true">background-color: white;
+color: black;
+border: 1px solid #6C757D;</string>
+             </property>
+             <property name="placeholderText">
+              <string>Entrez le matricule</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="labelDescription">
+             <property name="styleSheet">
+              <string notr="true">font: 14pt "Segoe UI";
+color: white;</string>
+             </property>
+             <property name="text">
+              <string>Description Panne:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QTextEdit" name="textEditDescription">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>80</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: white;
+color: black;
+border: 1px solid #6C757D;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="labelDateReception">
+             <property name="styleSheet">
+              <string notr="true">font: 14pt "Segoe UI";
+color: white;</string>
+             </property>
+             <property name="text">
+              <string>Date Réception:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QDateEdit" name="dateEditReception">
+             <property name="styleSheet">
+              <string notr="true">background-color: white;
+color: black;
+border: 1px solid #6C757D;</string>
+             </property>
+             <property name="calendarPopup">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="labelDateFinEstimee">
+             <property name="styleSheet">
+              <string notr="true">font: 14pt "Segoe UI";
+color: white;</string>
+             </property>
+             <property name="text">
+              <string>Date Fin Estimée:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QDateEdit" name="dateEditFinEstimee">
+             <property name="styleSheet">
+              <string notr="true">background-color: white;
+color: black;
+border: 1px solid #6C757D;</string>
+             </property>
+             <property name="calendarPopup">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="labelStatut">
+             <property name="styleSheet">
+              <string notr="true">font: 14pt "Segoe UI";
+color: white;</string>
+             </property>
+             <property name="text">
+              <string>Statut:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QComboBox" name="comboBoxStatut">
+             <property name="styleSheet">
+              <string notr="true">background-color: white;
+color: black;
+border: 1px solid #6C757D;</string>
+             </property>
+             <item>
+              <property name="text">
+               <string>En cours</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Terminée</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>Annulée</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="labelCoutEstime">
+             <property name="styleSheet">
+              <string notr="true">font: 14pt "Segoe UI";
+color: white;</string>
+             </property>
+             <property name="text">
+              <string>Coût Estimé:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QLineEdit" name="lineEditCoutEstime">
+             <property name="styleSheet">
+              <string notr="true">background-color: white;
+color: black;
+border: 1px solid #6C757D;</string>
+             </property>
+             <property name="placeholderText">
+              <string>0.00</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0" colspan="2">
+            <layout class="QHBoxLayout" name="horizontalLayoutButtons">
+             <item>
+              <widget class="QPushButton" name="btnAjouter">
+               <property name="styleSheet">
+                <string notr="true">background-color: #28A745;
+font: bold 12pt "Segoe UI";
+color: white;</string>
+               </property>
+               <property name="text">
+                <string>Ajouter</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnModifier">
+               <property name="styleSheet">
+                <string notr="true">background-color: #007BFF;
+color: white;
+font: bold 12pt "Segoe UI";</string>
+               </property>
+               <property name="text">
+                <string>Modifier</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnSupprimer">
+               <property name="styleSheet">
+                <string notr="true">background-color: #DC3545;
+font: bold 12pt "Segoe UI";
+color: white;</string>
+               </property>
+               <property name="text">
+                <string>Supprimer</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="8" column="0" colspan="2">
+            <layout class="QHBoxLayout" name="horizontalLayoutInnovant">
+             <item>
+              <widget class="QPushButton" name="btnNotifierClient">
+               <property name="styleSheet">
+                <string notr="true">background-color: #FD7E14;
+font: bold 12pt "Segoe UI";
+color: white;</string>
+               </property>
+               <property name="text">
+                <string>Notifier Client</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnPredictionDelais">
+               <property name="styleSheet">
+                <string notr="true">background-color: #17A2B8;
+font: bold 12pt "Segoe UI";
+color: white;</string>
+               </property>
+               <property name="text">
+                <string>Prédiction Délais</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBoxListe">
+          <property name="styleSheet">
+           <string notr="true">font: 700 16pt "Segoe UI";
+color: #35b95f;
+border-color: #35b95f;
+background-color: #2c3147;</string>
+          </property>
+          <property name="title">
+           <string>Liste des Réparations</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_2">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayoutRecherche">
+             <item>
+              <widget class="QLabel" name="labelRecherche">
+               <property name="styleSheet">
+                <string notr="true">font: 14pt "Segoe UI";
+color: white;</string>
+               </property>
+               <property name="text">
+                <string>Rechercher par:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="comboBoxCritere">
+               <property name="styleSheet">
+                <string notr="true">background-color: white;
+color: black;</string>
+               </property>
+               <item>
+                <property name="text">
+                 <string>CIN Client</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Type Panne</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Statut</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Matricule Appareil</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEditRecherche">
+               <property name="styleSheet">
+                <string notr="true">background-color: white;
+color: black;</string>
+               </property>
+               <property name="placeholderText">
+                <string>Terme de recherche...</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnRechercher">
+               <property name="styleSheet">
+                <string notr="true">background-color: #007BFF;
+color: white;
+font: bold 12pt "Segoe UI";</string>
+               </property>
+               <property name="text">
+                <string>Rechercher</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnReinitialiser">
+               <property name="styleSheet">
+                <string notr="true">background-color: #6C757D;
+color: white;
+font: bold 12pt "Segoe UI";</string>
+               </property>
+               <property name="text">
+                <string>Trier par cout</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QTableView" name="tableViewReparations">
+             <property name="styleSheet">
+              <string notr="true">background-color: white;</string>
+             </property>
+             <property name="selectionMode">
+              <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+             </property>
+             <property name="selectionBehavior">
+              <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+             </property>
+             <property name="sortingEnabled">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayoutExport">
+             <item>
+              <widget class="QLabel" name="labelTotal">
+               <property name="styleSheet">
+                <string notr="true">font: 14pt "Segoe UI";
+color: white;</string>
+               </property>
+               <property name="text">
+                <string>Total: 0 réparations</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnExporterPDF">
+               <property name="styleSheet">
+                <string notr="true">background-color: #DC3545;
+color: white;
+font: bold 12pt "Segoe UI";</string>
+               </property>
+               <property name="text">
+                <string>Exporter PDF</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tabStatistiques">
+       <property name="styleSheet">
+        <string notr="true">background-color: #2c3147;</string>
+       </property>
+       <attribute name="title">
+        <string>Statistiques</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QGroupBox" name="groupBoxStats">
+          <property name="styleSheet">
+           <string notr="true">border-color: #35b95f;
+color: #35b95f;
+font: 700 16pt "Segoe UI";
+background-color: #2c3147;</string>
+          </property>
+          <property name="title">
+           <string>Statistiques des Réparations</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QFrame" name="frameGraphique">
+             <property name="frameShape">
+              <enum>QFrame::Shape::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Shadow::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_4">
+              <item>
+               <widget class="QLabel" name="labelGraphTitle">
+                <property name="styleSheet">
+                 <string notr="true">font-weight: bold;
+font-size: 16px;
+color: #35b95f;
+margin: 10px;</string>
+                </property>
+                <property name="text">
+                 <string>Types de pannes les plus fréquentes</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignmentFlag::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QWidget" name="widgetGraphique" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>400</width>
+                  <height>300</height>
+                 </size>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">background-color: white;
+border: 1px solid #6C757D;
+border-radius: 4px;</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QFrame" name="frameDetails">
+             <property name="frameShape">
+              <enum>QFrame::Shape::StyledPanel</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Shadow::Raised</enum>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_5">
+              <item>
+               <widget class="QLabel" name="labelDetailsTitle">
+                <property name="styleSheet">
+                 <string notr="true">font-weight: bold;
+font-size: 16px;
+color: #35b95f;
+margin: 10px;</string>
+                </property>
+                <property name="text">
+                 <string>Détails statistiques</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignmentFlag::AlignCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QTextEdit" name="textEditStats">
+                <property name="styleSheet">
+                 <string notr="true">background-color: white;
+border: 1px solid #6C757D;
+border-radius: 4px;
+padding: 10px;
+color: black;</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="btnGenererStats">
+                <property name="styleSheet">
+                 <string notr="true">background-color: #007BFF;
+color: white;
+font: bold 12pt "Segoe UI";</string>
+                </property>
+                <property name="text">
+                 <string>Générer Statistiques</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
