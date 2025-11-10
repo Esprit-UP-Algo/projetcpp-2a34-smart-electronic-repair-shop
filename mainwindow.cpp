@@ -6,6 +6,8 @@
 #include <QRegularExpression>
 #include <QIntValidator>
 #include <QDoubleValidator>
+#include <QToolTip>
+#include <QSignalBlocker>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -14,6 +16,34 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     setupValidators();
+
+    // Ajouter des placeholders pour les champs obligatoires
+    ui->lineEditId->setPlaceholderText("CIN * (Obligatoire)");
+    ui->lineEditMarque_3->setPlaceholderText("Nom * (Obligatoire)");
+    ui->lineEditMarque_2->setPlaceholderText("Prénom * (Obligatoire)");
+    ui->lineEditIdClient->setPlaceholderText("CIN * (Obligatoire)");
+    ui->lineEditNom->setPlaceholderText("Nom * (Obligatoire)");
+    ui->lineEditPrenom->setPlaceholderText("Prénom * (Obligatoire)");
+    ui->lineEditTelephone->setPlaceholderText("Téléphone * (Obligatoire)");
+    ui->lineEditNumeroSerie->setPlaceholderText("Numéro série * (Obligatoire)");
+    ui->lineEditMarque->setPlaceholderText("Marque * (Obligatoire)");
+    ui->lineEditModele->setPlaceholderText("Modèle * (Obligatoire)");
+    ui->lineEdit_2->setPlaceholderText("ID Réparation * (Obligatoire)");
+    ui->lineEdit->setPlaceholderText("Matricule * (Obligatoire)");
+    ui->lineEdit_3->setPlaceholderText("CIN Employé * (Obligatoire)");
+    ui->lineEdit_4->setPlaceholderText("Numéro Série * (Obligatoire)");
+    ui->textEditPanne->setPlaceholderText("Description de la panne * (Obligatoire)");
+
+    // Connexions pour le contrôle de saisie en temps réel
+    connect(ui->lineEditMarque_3, &QLineEdit::textChanged, this, &MainWindow::onTextChanged);
+    connect(ui->lineEditMarque_2, &QLineEdit::textChanged, this, &MainWindow::onTextChanged);
+    connect(ui->lineEditNom, &QLineEdit::textChanged, this, &MainWindow::onTextChanged);
+    connect(ui->lineEditPrenom, &QLineEdit::textChanged, this, &MainWindow::onTextChanged);
+    connect(ui->lineEditMarque, &QLineEdit::textChanged, this, &MainWindow::onTextChanged);
+
+    // Connexion pour le tri par en-tête
+    connect(ui->tableViewReparationsListe->horizontalHeader(), &QHeaderView::sectionClicked,
+            this, &MainWindow::onHeaderReparationClicked);
 
     refreshEmployeTable();
     refreshClientTable();
@@ -34,19 +64,37 @@ void MainWindow::setupValidators()
     QIntValidator *numSerieValidator = new QIntValidator(1, 999999999, this);
     QDoubleValidator *coutValidator = new QDoubleValidator(0, 999999.99, 2, this);
 
+    // Validateur pour les champs texte (pas de chiffres)
+    QRegularExpressionValidator *texteValidator = new QRegularExpressionValidator(QRegularExpression("[A-Za-zÀ-ÿ\\s'-]+"), this);
+    QRegularExpressionValidator *emailValidator = new QRegularExpressionValidator(QRegularExpression("[A-Za-z0-9._%+-@]+"), this);
+    QRegularExpressionValidator *adresseValidator = new QRegularExpressionValidator(QRegularExpression("[A-Za-z0-9À-ÿ\\s,'-]+"), this);
+
     // Employés
     ui->lineEditId->setValidator(cinValidator);
     ui->lineEditModele_2->setValidator(new QIntValidator(10000000, 99999999, this));
+    ui->lineEditMarque_3->setValidator(texteValidator); // Nom
+    ui->lineEditMarque_2->setValidator(texteValidator); // Prénom
+    ui->lineEditNumeroSerie_2->setValidator(emailValidator); // Email
 
     // Clients
     ui->lineEditIdClient->setValidator(cinValidator);
     ui->lineEditTelephone->setValidator(new QIntValidator(10000000, 99999999, this));
+    ui->lineEditNom->setValidator(texteValidator);
+    ui->lineEditPrenom->setValidator(texteValidator);
+    ui->lineEditEmail->setValidator(emailValidator);
+    ui->lineEditAdresse->setValidator(adresseValidator);
 
     // Appareils
     ui->lineEditNumeroSerie->setValidator(numSerieValidator);
+    ui->lineEditMarque->setValidator(texteValidator);
+    ui->lineEditModele->setValidator(adresseValidator); // Modèle peut contenir chiffres
 
     // Réparations
     ui->lineEditCout->setValidator(coutValidator);
+    ui->lineEdit_3->setValidator(cinValidator); // CIN employé
+    ui->lineEdit_4->setValidator(numSerieValidator); // Numéro série
+    ui->lineEdit_2->setValidator(cinValidator); // ID réparation
+    ui->lineEdit->setValidator(adresseValidator); // Matricule réparation
 }
 
 // ==================== MÉTHODES DE VALIDATION ====================
@@ -86,18 +134,102 @@ bool MainWindow::validateNumSerie(const QString& numStr, int& numSerie)
 
 bool MainWindow::validateCout(const QString& coutStr, double& cout)
 {
-    // CORRECTION : Utiliser toDouble directement
     bool ok;
     QString cleanedStr = coutStr;
     cout = cleanedStr.toDouble(&ok);
     return ok && cout >= 0;
 }
 
-bool MainWindow::validateMatApp(const QString& matStr, int& matApp)
+bool MainWindow::validateIdReparation(const QString& idStr, int& idReparation)
 {
     bool ok;
-    matApp = matStr.toInt(&ok);
-    return ok && matApp > 0;
+    idReparation = idStr.toInt(&ok);
+    return ok && idReparation > 0;
+}
+
+bool MainWindow::validateTextField(const QString& text, const QString& fieldName)
+{
+    if (text.isEmpty()) {
+        QMessageBox::warning(this, "Champ requis",
+                             QString("Le champ '%1' ne peut pas être vide!").arg(fieldName));
+        return false;
+    }
+
+    // Vérifier s'il y a des chiffres
+    if (text.contains(QRegularExpression("[0-9]"))) {
+        QMessageBox::warning(this, "Erreur de saisie",
+                             QString("Le champ '%1' ne peut pas contenir de chiffres!").arg(fieldName));
+        return false;
+    }
+
+    return true;
+}
+bool MainWindow::validateRequiredFields(const QStringList& fields, const QStringList& values, const QString& formName)
+{
+    bool allValid = true;
+    for (int i = 0; i < fields.size(); ++i) {
+        if (values[i].isEmpty()) {
+            allValid = false;
+        }
+    }
+
+    if (!allValid) {
+        highlightEmptyFields(fields, values);
+        QMessageBox::warning(this, "Champs obligatoires manquants",
+                             QString("Veuillez remplir tous les champs obligatoires pour %1!")
+                                 .arg(formName));
+        return false;
+    }
+
+    return true;
+}
+
+// ==================== NOUVELLES MÉTHODES ====================
+
+void MainWindow::onTextChanged(const QString& text)
+{
+    QLineEdit *lineEdit = qobject_cast<QLineEdit*>(sender());
+    if (!lineEdit) return;
+
+    // Supprimer les chiffres
+    QString cleanedText = text;
+    cleanedText.remove(QRegularExpression("[0-9]"));
+
+    if (cleanedText != text) {
+        // Bloquer la saisie et afficher un message
+        QSignalBlocker blocker(lineEdit);
+        lineEdit->setText(cleanedText);
+
+        // Message d'avertissement
+        QToolTip::showText(lineEdit->mapToGlobal(QPoint(0, 0)),
+                           "Les chiffres ne sont pas autorisés dans ce champ",
+                           lineEdit);
+    }
+}
+
+void MainWindow::onHeaderReparationClicked(int logicalIndex)
+{
+    if (logicalIndex == 5) { // Index de la colonne "Coût"
+        QSqlQueryModel* model = qobject_cast<QSqlQueryModel*>(ui->tableViewReparationsListe->model());
+        if (!model) return;
+
+        // Déterminer l'ordre de tri actuel
+        static bool triCoutAscendant = true;
+        QString ordreTri = triCoutAscendant ? "ASC" : "DESC";
+
+        QSqlQueryModel* newModel = new QSqlQueryModel();
+        newModel->setQuery(QString("SELECT IDR, DES_PANNE, DATE_REC, DATE_FIN_EST, STATUT_R, COUT, CIN_EMP, NUM_SERIE, MAT_REP FROM REPARATIONS ORDER BY COUT %1").arg(ordreTri));
+
+        // Copier les en-têtes
+        for (int i = 0; i < newModel->columnCount(); ++i) {
+            newModel->setHeaderData(i, Qt::Horizontal, model->headerData(i, Qt::Horizontal));
+        }
+
+        ui->tableViewReparationsListe->setModel(newModel);
+        delete model;
+
+        triCoutAscendant = !triCoutAscendant;
+    }
 }
 
 // ==================== MÉTHODES DE RAFRAÎCHISSEMENT ====================
@@ -127,8 +259,7 @@ void MainWindow::refreshReparationTable()
 
 void MainWindow::loadComboBoxData()
 {
-    ui->comboBoxAppareilReparation->setModel(rep.getAppareilsDisponibles());
-    ui->comboBoxAppareilReparation->setModelColumn(0);
+    // Les combobox pour appareils et employés sont remplacées par des saisies manuelles
 }
 
 // ==================== MÉTHODES DE NETTOYAGE ====================
@@ -164,19 +295,33 @@ void MainWindow::clearAppareilFields()
 
 void MainWindow::clearReparationFields()
 {
-    ui->lineEditId->clear(); // Utiliser lineEditId pour les réparations aussi
-    ui->comboBoxAppareilReparation->setCurrentIndex(0);
+    ui->lineEdit->clear(); // Matricule réparation
     ui->textEditPanne->clear();
     ui->lineEditCout->clear();
     ui->dateEditDepot->setDate(QDate::currentDate());
     ui->dateEditRetourPrevue->setDate(QDate::currentDate());
     ui->comboBoxStatutReparation->setCurrentIndex(0);
+    ui->lineEdit_4->clear(); // Numéro série appareil
+    ui->lineEdit_3->clear(); // CIN employé
+    ui->lineEdit_2->clear(); // ID réparation
 }
 
 // ==================== GESTION DES EMPLOYÉS ====================
 
 void MainWindow::on_btnAjouter_clicked()
 {
+    // Validation des champs obligatoires
+    QStringList requiredFields = {"CIN", "Nom", "Prénom"};
+    QStringList fieldValues = {
+        ui->lineEditId->text().trimmed(),
+        ui->lineEditMarque_3->text().trimmed(),
+        ui->lineEditMarque_2->text().trimmed()
+    };
+
+    if (!validateRequiredFields(requiredFields, fieldValues, "l'ajout d'un employé")) {
+        return;
+    }
+
     int cin;
     if(!validateCIN(ui->lineEditId->text(), cin)) {
         QMessageBox::warning(this, "Erreur de saisie", "Le CIN doit être un nombre positif entre 1 et 99,999,999!");
@@ -187,6 +332,10 @@ void MainWindow::on_btnAjouter_clicked()
     QString prenom = ui->lineEditMarque_2->text();
     QString telephone = ui->lineEditModele_2->text();
     QString email = ui->lineEditNumeroSerie_2->text();
+
+    // Validation des champs texte
+    if(!validateTextField(nom, "Nom")) return;
+    if(!validateTextField(prenom, "Prénom")) return;
 
     if(!validateNomPrenom(nom)) {
         QMessageBox::warning(this, "Erreur de saisie", "Le nom n'est pas valide!");
@@ -232,6 +381,10 @@ void MainWindow::on_btnModifier_clicked()
     QString prenom = ui->lineEditMarque_2->text();
     QString telephone = ui->lineEditModele_2->text();
     QString email = ui->lineEditNumeroSerie_2->text();
+
+    // Validation des champs texte
+    if(!validateTextField(nom, "Nom")) return;
+    if(!validateTextField(prenom, "Prénom")) return;
 
     if(!validateNomPrenom(nom)) {
         QMessageBox::warning(this, "Erreur de saisie", "Le nom n'est pas valide!");
@@ -311,8 +464,18 @@ void MainWindow::on_btnRechercher_clicked()
 
 void MainWindow::on_btnReinitialiser_clicked()
 {
+    // Tri par nom comme indiqué dans l'interface "tri par nom"
+    QSqlQueryModel* model = new QSqlQueryModel();
+    model->setQuery("SELECT CIN_EMPLOYER, NOM, PRENOM, TELEPHONE, EMAIL FROM EMPLOYER ORDER BY NOM, PRENOM");
+
+    model->setHeaderData(0, Qt::Horizontal, QObject::tr("CIN"));
+    model->setHeaderData(1, Qt::Horizontal, QObject::tr("Nom"));
+    model->setHeaderData(2, Qt::Horizontal, QObject::tr("Prénom"));
+    model->setHeaderData(3, Qt::Horizontal, QObject::tr("Téléphone"));
+    model->setHeaderData(4, Qt::Horizontal, QObject::tr("Email"));
+
+    ui->tableViewAppareils_2->setModel(model);
     clearEmployeFields();
-    refreshEmployeTable();
 }
 
 void MainWindow::on_tableViewAppareils_2_clicked(const QModelIndex &index)
@@ -330,6 +493,19 @@ void MainWindow::on_tableViewAppareils_2_clicked(const QModelIndex &index)
 
 void MainWindow::on_btnAjouterClient_clicked()
 {
+    // Validation des champs obligatoires
+    QStringList requiredFields = {"CIN", "Nom", "Prénom", "Téléphone"};
+    QStringList fieldValues = {
+        ui->lineEditIdClient->text().trimmed(),
+        ui->lineEditNom->text().trimmed(),
+        ui->lineEditPrenom->text().trimmed(),
+        ui->lineEditTelephone->text().trimmed()
+    };
+
+    if (!validateRequiredFields(requiredFields, fieldValues, "l'ajout d'un client")) {
+        return;
+    }
+
     int cin;
     if(!validateCIN(ui->lineEditIdClient->text(), cin)) {
         QMessageBox::warning(this, "Erreur de saisie", "Le CIN doit être un nombre positif entre 1 et 99,999,999!");
@@ -343,6 +519,10 @@ void MainWindow::on_btnAjouterClient_clicked()
     QString adresse = ui->lineEditAdresse->text();
     QDate dateNaissance = ui->dateEditInscription->date();
 
+    // Validation des champs texte
+    if(!validateTextField(nom, "Nom")) return;
+    if(!validateTextField(prenom, "Prénom")) return;
+
     if(!validateNomPrenom(nom)) {
         QMessageBox::warning(this, "Erreur de saisie", "Le nom n'est pas valide!");
         return;
@@ -353,7 +533,7 @@ void MainWindow::on_btnAjouterClient_clicked()
         return;
     }
 
-    if(!telephone.isEmpty() && !validateTelephone(telephone)) {
+    if(!validateTelephone(telephone)) {
         QMessageBox::warning(this, "Erreur de saisie", "Le téléphone doit contenir 8 chiffres!");
         return;
     }
@@ -390,7 +570,10 @@ void MainWindow::on_btnModifierClient_clicked()
     QString adresse = ui->lineEditAdresse->text();
     QDate dateNaissance = ui->dateEditInscription->date();
 
-    // Validation des champs obligatoires
+    // Validation des champs texte
+    if(!validateTextField(nom, "Nom")) return;
+    if(!validateTextField(prenom, "Prénom")) return;
+
     if(!validateNomPrenom(nom)) {
         QMessageBox::warning(this, "Erreur de saisie", "Le nom n'est pas valide!");
         return;
@@ -463,8 +646,20 @@ void MainWindow::on_btnRechercherClient_clicked()
 
 void MainWindow::on_btnReinitialiserClient_clicked()
 {
+    // Tri par nom comme indiqué dans l'interface "trier par nom"
+    QSqlQueryModel* model = new QSqlQueryModel();
+    model->setQuery("SELECT CIN_CLIENT, NOM, PRENOM, TELEPHONE, EMAIL, ADRESSE, DATEN FROM CLIENT ORDER BY NOM, PRENOM");
+
+    model->setHeaderData(0, Qt::Horizontal, QObject::tr("CIN"));
+    model->setHeaderData(1, Qt::Horizontal, QObject::tr("Nom"));
+    model->setHeaderData(2, Qt::Horizontal, QObject::tr("Prénom"));
+    model->setHeaderData(3, Qt::Horizontal, QObject::tr("Téléphone"));
+    model->setHeaderData(4, Qt::Horizontal, QObject::tr("Email"));
+    model->setHeaderData(5, Qt::Horizontal, QObject::tr("Adresse"));
+    model->setHeaderData(6, Qt::Horizontal, QObject::tr("Date Naissance"));
+
+    ui->tableViewClients->setModel(model);
     ui->lineEditRechercheClient->clear();
-    refreshClientTable();
 }
 
 void MainWindow::on_tableViewClients_clicked(const QModelIndex &index)
@@ -484,7 +679,19 @@ void MainWindow::on_tableViewClients_clicked(const QModelIndex &index)
 
 void MainWindow::on_btnAjouterAppareil_clicked()
 {
-    // Validation du numéro de série
+    // Validation des champs obligatoires
+    QStringList requiredFields = {"Numéro de série", "Type", "Marque", "Modèle"};
+    QStringList fieldValues = {
+        ui->lineEditNumeroSerie->text().trimmed(),
+        ui->comboBoxType->currentText().trimmed(),
+        ui->lineEditMarque->text().trimmed(),
+        ui->lineEditModele->text().trimmed()
+    };
+
+    if (!validateRequiredFields(requiredFields, fieldValues, "l'ajout d'un appareil")) {
+        return;
+    }
+
     int numSerie;
     if(!validateNumSerie(ui->lineEditNumeroSerie->text(), numSerie)) {
         QMessageBox::warning(this, "Erreur de saisie", "Le numéro de série doit être un nombre positif!");
@@ -496,18 +703,9 @@ void MainWindow::on_btnAjouterAppareil_clicked()
     QString modele = ui->lineEditModele->text();
     QDate dateAchat = ui->dateEditAchat->date();
 
-    // Validation des champs obligatoires
-    if(marque.isEmpty()) {
-        QMessageBox::warning(this, "Champ requis", "La marque est obligatoire!");
-        return;
-    }
+    // Validation des champs texte
+    if(!validateTextField(marque, "Marque")) return;
 
-    if(modele.isEmpty()) {
-        QMessageBox::warning(this, "Champ requis", "Le modèle est obligatoire!");
-        return;
-    }
-
-    // DEMANDER LE CIN DU CLIENT
     bool ok;
     int cinClient = QInputDialog::getInt(this, "Sélection du client",
                                          "Veuillez saisir le CIN du client propriétaire:",
@@ -517,7 +715,6 @@ void MainWindow::on_btnAjouterAppareil_clicked()
         return;
     }
 
-    // Vérifier que le client existe
     QSqlQuery query;
     query.prepare("SELECT COUNT(*) FROM CLIENT WHERE CIN_CLIENT = :cinClient");
     query.bindValue(":cinClient", cinClient);
@@ -557,7 +754,9 @@ void MainWindow::on_btnModifierAppareil_clicked()
     QString modele = ui->lineEditModele->text();
     QDate dateAchat = ui->dateEditAchat->date();
 
-    // Validation des champs obligatoires
+    // Validation des champs texte
+    if(!validateTextField(marque, "Marque")) return;
+
     if(marque.isEmpty()) {
         QMessageBox::warning(this, "Champ requis", "La marque est obligatoire!");
         return;
@@ -568,7 +767,6 @@ void MainWindow::on_btnModifierAppareil_clicked()
         return;
     }
 
-    // DEMANDER LE CIN DU CLIENT
     bool ok;
     int cinClient = QInputDialog::getInt(this, "Sélection du client",
                                          "Veuillez saisir le CIN du client propriétaire:",
@@ -578,7 +776,6 @@ void MainWindow::on_btnModifierAppareil_clicked()
         return;
     }
 
-    // Vérifier que le client existe
     QSqlQuery query;
     query.prepare("SELECT COUNT(*) FROM CLIENT WHERE CIN_CLIENT = :cinClient");
     query.bindValue(":cinClient", cinClient);
@@ -643,8 +840,20 @@ void MainWindow::on_btnRechercherAppareil_clicked()
 
 void MainWindow::on_btnReinitialiserAppareil_clicked()
 {
+    // Tri par numéro série comme indiqué dans l'interface "trier par numero serie"
+    QSqlQueryModel* model = new QSqlQueryModel();
+    model->setQuery("SELECT NUM_SERIE, TYPE, MARQUE, MODELE, DATE_ACQ, ETAT, CIN_CLIENT FROM APPAREILLES ORDER BY NUM_SERIE");
+
+    model->setHeaderData(0, Qt::Horizontal, QObject::tr("Numéro Série"));
+    model->setHeaderData(1, Qt::Horizontal, QObject::tr("Type"));
+    model->setHeaderData(2, Qt::Horizontal, QObject::tr("Marque"));
+    model->setHeaderData(3, Qt::Horizontal, QObject::tr("Modèle"));
+    model->setHeaderData(4, Qt::Horizontal, QObject::tr("Date Acquisition"));
+    model->setHeaderData(5, Qt::Horizontal, QObject::tr("État"));
+    model->setHeaderData(6, Qt::Horizontal, QObject::tr("CIN Client"));
+
+    ui->tableViewAppareils->setModel(model);
     clearAppareilFields();
-    refreshAppareilTable();
 }
 
 void MainWindow::on_tableViewAppareils_clicked(const QModelIndex &index)
@@ -662,18 +871,38 @@ void MainWindow::on_tableViewAppareils_clicked(const QModelIndex &index)
 
 void MainWindow::on_btnAjouterReparation_clicked()
 {
-    int matApp;
-    if(!validateMatApp(ui->lineEditId->text(), matApp)) {
-        QMessageBox::warning(this, "Erreur de saisie", "Le matricule doit être un nombre positif!");
+    // Validation des champs obligatoires
+    QStringList requiredFields = {
+        "ID Réparation",
+        "Matricule Réparation",
+        "Description Panne",
+        "CIN Employé",
+        "Numéro Série"
+    };
+    QStringList fieldValues = {
+        ui->lineEdit_2->text().trimmed(),
+        ui->lineEdit->text().trimmed(),
+        ui->textEditPanne->toPlainText().trimmed(),
+        ui->lineEdit_3->text().trimmed(),
+        ui->lineEdit_4->text().trimmed()
+    };
+
+    if (!validateRequiredFields(requiredFields, fieldValues, "l'ajout d'une réparation")) {
         return;
     }
 
-    if(ui->comboBoxAppareilReparation->currentText().isEmpty()) {
-        QMessageBox::warning(this, "Champ requis", "Veuillez sélectionner un appareil!");
+    int idr;
+    if(!validateIdReparation(ui->lineEdit_2->text(), idr)) {
+        QMessageBox::warning(this, "Erreur de saisie", "L'ID de réparation doit être un nombre positif!");
         return;
     }
 
-    int numSerie = ui->comboBoxAppareilReparation->currentText().toInt();
+    int numSerie;
+    if(!validateNumSerie(ui->lineEdit_4->text(), numSerie)) {
+        QMessageBox::warning(this, "Erreur de saisie", "Le numéro de série doit être un nombre positif!");
+        return;
+    }
+
     QString descriptionPanne = ui->textEditPanne->toPlainText();
     QDate dateDepot = ui->dateEditDepot->date();
     QDate dateRetourPrevue = ui->dateEditRetourPrevue->date();
@@ -685,39 +914,48 @@ void MainWindow::on_btnAjouterReparation_clicked()
         return;
     }
 
-    if(descriptionPanne.isEmpty()) {
-        QMessageBox::warning(this, "Champ requis", "La description de la panne est obligatoire!");
+    int cinEmploye;
+    if(!validateCIN(ui->lineEdit_3->text(), cinEmploye)) {
+        QMessageBox::warning(this, "Erreur de saisie", "Le CIN employé doit être un nombre entre 1 et 99,999,999!");
         return;
     }
+
+    QString matRep = ui->lineEdit->text();
 
     if(dateRetourPrevue < dateDepot) {
         QMessageBox::warning(this, "Erreur de saisie", "La date de retour ne peut pas être avant la date de dépôt!");
         return;
     }
 
-    bool ok;
-    int cinEmploye = QInputDialog::getInt(this, "Sélection de l'employé",
-                                          "Veuillez saisir le CIN de l'employé responsable:",
-                                          0, 1, 99999999, 1, &ok);
+    // Vérifier que l'appareil existe
+    QSqlQuery queryAppareil;
+    queryAppareil.prepare("SELECT COUNT(*) FROM APPAREILLES WHERE NUM_SERIE = :numSerie");
+    queryAppareil.bindValue(":numSerie", numSerie);
+    queryAppareil.exec();
+    queryAppareil.next();
+    int countAppareil = queryAppareil.value(0).toInt();
 
-    if (!ok) {
+    if(countAppareil == 0) {
+        QMessageBox::warning(this, "Appareil introuvable",
+                             "L'appareil avec numéro de série " + QString::number(numSerie) + " n'existe pas!");
         return;
     }
 
-    QSqlQuery query;
-    query.prepare("SELECT COUNT(*) FROM EMPLOYER WHERE CIN_EMPLOYER = :cinEmploye");
-    query.bindValue(":cinEmploye", cinEmploye);
-    query.exec();
-    query.next();
-    int count = query.value(0).toInt();
+    // Vérifier que l'employé existe
+    QSqlQuery queryEmploye;
+    queryEmploye.prepare("SELECT COUNT(*) FROM EMPLOYER WHERE CIN_EMPLOYER = :cinEmploye");
+    queryEmploye.bindValue(":cinEmploye", cinEmploye);
+    queryEmploye.exec();
+    queryEmploye.next();
+    int countEmploye = queryEmploye.value(0).toInt();
 
-    if(count == 0) {
+    if(countEmploye == 0) {
         QMessageBox::warning(this, "Employé introuvable",
                              "L'employé avec CIN " + QString::number(cinEmploye) + " n'existe pas!");
         return;
     }
 
-    Reparations r(matApp, descriptionPanne, dateDepot, dateRetourPrevue, statut, cout, cinEmploye, numSerie);
+    Reparations r(idr, descriptionPanne, dateDepot, dateRetourPrevue, statut, cout, cinEmploye, numSerie, matRep);
     bool test = r.ajouter();
 
     if(test) {
@@ -731,18 +969,20 @@ void MainWindow::on_btnAjouterReparation_clicked()
 
 void MainWindow::on_btnModifierReparation_clicked()
 {
-    int matApp;
-    if(!validateMatApp(ui->lineEditId->text(), matApp)) {
+    int idr;
+    // Utiliser lineEdit_2 pour l'ID de réparation
+    if(!validateIdReparation(ui->lineEdit_2->text(), idr)) {
         QMessageBox::warning(this, "Erreur de saisie", "Veuillez sélectionner une réparation à modifier!");
         return;
     }
 
-    if(ui->comboBoxAppareilReparation->currentText().isEmpty()) {
-        QMessageBox::warning(this, "Champ requis", "Veuillez sélectionner un appareil!");
+    // Récupérer le numéro de série depuis lineEdit_4
+    int numSerie;
+    if(!validateNumSerie(ui->lineEdit_4->text(), numSerie)) {
+        QMessageBox::warning(this, "Erreur de saisie", "Le numéro de série doit être un nombre positif!");
         return;
     }
 
-    int numSerie = ui->comboBoxAppareilReparation->currentText().toInt();
     QString descriptionPanne = ui->textEditPanne->toPlainText();
     QDate dateDepot = ui->dateEditDepot->date();
     QDate dateRetourPrevue = ui->dateEditRetourPrevue->date();
@@ -751,6 +991,20 @@ void MainWindow::on_btnModifierReparation_clicked()
     double cout;
     if(!validateCout(ui->lineEditCout->text(), cout)) {
         QMessageBox::warning(this, "Erreur de saisie", "Le coût doit être un nombre positif!");
+        return;
+    }
+
+    // Récupérer le CIN employé depuis lineEdit_3
+    int cinEmploye;
+    if(!validateCIN(ui->lineEdit_3->text(), cinEmploye)) {
+        QMessageBox::warning(this, "Erreur de saisie", "Le CIN employé doit être un nombre entre 1 et 99,999,999!");
+        return;
+    }
+
+    // Récupérer le matricule réparation depuis lineEdit (premier champ)
+    QString matRep = ui->lineEdit->text();
+    if(matRep.isEmpty()) {
+        QMessageBox::warning(this, "Champ requis", "Le matricule de réparation est obligatoire!");
         return;
     }
 
@@ -764,30 +1018,36 @@ void MainWindow::on_btnModifierReparation_clicked()
         return;
     }
 
-    bool ok;
-    int cinEmploye = QInputDialog::getInt(this, "Sélection de l'employé",
-                                          "Veuillez saisir le CIN de l'employé responsable:",
-                                          0, 1, 99999999, 1, &ok);
+    // Vérifier que l'appareil existe
+    QSqlQuery queryAppareil;
+    queryAppareil.prepare("SELECT COUNT(*) FROM APPAREILLES WHERE NUM_SERIE = :numSerie");
+    queryAppareil.bindValue(":numSerie", numSerie);
+    queryAppareil.exec();
+    queryAppareil.next();
+    int countAppareil = queryAppareil.value(0).toInt();
 
-    if (!ok) {
+    if(countAppareil == 0) {
+        QMessageBox::warning(this, "Appareil introuvable",
+                             "L'appareil avec numéro de série " + QString::number(numSerie) + " n'existe pas!");
         return;
     }
 
-    QSqlQuery query;
-    query.prepare("SELECT COUNT(*) FROM EMPLOYER WHERE CIN_EMPLOYER = :cinEmploye");
-    query.bindValue(":cinEmploye", cinEmploye);
-    query.exec();
-    query.next();
-    int count = query.value(0).toInt();
+    // Vérifier que l'employé existe
+    QSqlQuery queryEmploye;
+    queryEmploye.prepare("SELECT COUNT(*) FROM EMPLOYER WHERE CIN_EMPLOYER = :cinEmploye");
+    queryEmploye.bindValue(":cinEmploye", cinEmploye);
+    queryEmploye.exec();
+    queryEmploye.next();
+    int countEmploye = queryEmploye.value(0).toInt();
 
-    if(count == 0) {
+    if(countEmploye == 0) {
         QMessageBox::warning(this, "Employé introuvable",
                              "L'employé avec CIN " + QString::number(cinEmploye) + " n'existe pas!");
         return;
     }
 
-    Reparations r(matApp, descriptionPanne, dateDepot, dateRetourPrevue, statut, cout, cinEmploye, numSerie);
-    bool test = r.modifier(matApp);
+    Reparations r(idr, descriptionPanne, dateDepot, dateRetourPrevue, statut, cout, cinEmploye, numSerie, matRep);
+    bool test = r.modifier(idr);
 
     if(test) {
         QMessageBox::information(this, "Succès", "Réparation modifiée avec succès!");
@@ -799,8 +1059,9 @@ void MainWindow::on_btnModifierReparation_clicked()
 
 void MainWindow::on_btnSupprimerReparation_clicked()
 {
-    int matApp;
-    if(!validateMatApp(ui->lineEditId->text(), matApp)) {
+    int idr;
+    // Utiliser lineEdit_2 pour l'ID de réparation
+    if(!validateIdReparation(ui->lineEdit_2->text(), idr)) {
         QMessageBox::warning(this, "Erreur de saisie", "Veuillez sélectionner une réparation à supprimer!");
         return;
     }
@@ -811,7 +1072,7 @@ void MainWindow::on_btnSupprimerReparation_clicked()
                                   QMessageBox::Yes | QMessageBox::No);
 
     if (reply == QMessageBox::Yes) {
-        bool test = rep.supprimer(matApp);
+        bool test = rep.supprimer(idr);
 
         if(test) {
             QMessageBox::information(this, "Succès", "Réparation supprimée avec succès!");
@@ -838,21 +1099,53 @@ void MainWindow::on_btnRechercherReparation_clicked()
 
 void MainWindow::on_btnReinitialiserReparation_clicked()
 {
+    // Tri par coût comme indiqué dans l'interface "trier par cout"
+    QSqlQueryModel* model = new QSqlQueryModel();
+
+    // Vérifier l'ordre de tri (croissant ou décroissant)
+    static bool triAscendant = false;
+    QString ordreTri = triAscendant ? "ASC" : "DESC";
+
+    model->setQuery(QString("SELECT IDR, DES_PANNE, DATE_REC, DATE_FIN_EST, STATUT_R, COUT, CIN_EMP, NUM_SERIE, MAT_REP FROM REPARATIONS ORDER BY COUT %1").arg(ordreTri));
+
+    model->setHeaderData(0, Qt::Horizontal, QObject::tr("ID Réparation"));
+    model->setHeaderData(1, Qt::Horizontal, QObject::tr("Description Panne"));
+    model->setHeaderData(2, Qt::Horizontal, QObject::tr("Date Réception"));
+    model->setHeaderData(3, Qt::Horizontal, QObject::tr("Date Fin Estimée"));
+    model->setHeaderData(4, Qt::Horizontal, QObject::tr("Statut"));
+    model->setHeaderData(5, Qt::Horizontal, QObject::tr("Coût"));
+    model->setHeaderData(6, Qt::Horizontal, QObject::tr("CIN Employé"));
+    model->setHeaderData(7, Qt::Horizontal, QObject::tr("Numéro Série"));
+    model->setHeaderData(8, Qt::Horizontal, QObject::tr("Matricule Réparation"));
+
+    ui->tableViewReparationsListe->setModel(model);
     ui->lineEditRechercheReparation->clear();
-    refreshReparationTable();
+
+    // Alterner l'ordre de tri pour le prochain clic
+    triAscendant = !triAscendant;
+
+    // Mettre à jour le texte du bouton pour indiquer l'ordre de tri
+    if (triAscendant) {
+        ui->btnReinitialiserReparation->setText("trier par cout ↑");
+    } else {
+        ui->btnReinitialiserReparation->setText("trier par cout ↓");
+    }
 }
 
 void MainWindow::on_tableViewReparationsListe_clicked(const QModelIndex &index)
 {
     int row = index.row();
 
-    ui->lineEditId->setText(ui->tableViewReparationsListe->model()->index(row, 0).data().toString());
-    ui->comboBoxAppareilReparation->setCurrentText(ui->tableViewReparationsListe->model()->index(row, 7).data().toString());
-    ui->textEditPanne->setText(ui->tableViewReparationsListe->model()->index(row, 1).data().toString());
-    ui->dateEditDepot->setDate(ui->tableViewReparationsListe->model()->index(row, 2).data().toDate());
-    ui->dateEditRetourPrevue->setDate(ui->tableViewReparationsListe->model()->index(row, 3).data().toDate());
-    ui->comboBoxStatutReparation->setCurrentText(ui->tableViewReparationsListe->model()->index(row, 4).data().toString());
-    ui->lineEditCout->setText(ui->tableViewReparationsListe->model()->index(row, 5).data().toString());
+    // Remplir les champs avec les données de la ligne sélectionnée
+    ui->lineEdit_2->setText(ui->tableViewReparationsListe->model()->index(row, 0).data().toString()); // IDR
+    ui->textEditPanne->setText(ui->tableViewReparationsListe->model()->index(row, 1).data().toString()); // DES_PANNE
+    ui->dateEditDepot->setDate(ui->tableViewReparationsListe->model()->index(row, 2).data().toDate()); // DATE_REC
+    ui->dateEditRetourPrevue->setDate(ui->tableViewReparationsListe->model()->index(row, 3).data().toDate()); // DATE_FIN_EST
+    ui->comboBoxStatutReparation->setCurrentText(ui->tableViewReparationsListe->model()->index(row, 4).data().toString()); // STATUT_R
+    ui->lineEditCout->setText(ui->tableViewReparationsListe->model()->index(row, 5).data().toString()); // COUT
+    ui->lineEdit_3->setText(ui->tableViewReparationsListe->model()->index(row, 6).data().toString()); // CIN_EMP
+    ui->lineEdit_4->setText(ui->tableViewReparationsListe->model()->index(row, 7).data().toString()); // NUM_SERIE
+    ui->lineEdit->setText(ui->tableViewReparationsListe->model()->index(row, 8).data().toString()); // MAT_REP
 }
 
 // ==================== STATISTIQUES ====================
@@ -860,4 +1153,54 @@ void MainWindow::on_tableViewReparationsListe_clicked(const QModelIndex &index)
 void MainWindow::on_btnGenererRapport_clicked()
 {
     QMessageBox::information(this, "Fonctionnalité", "Génération de rapport - Fonctionnalité à implémenter");
+}
+void MainWindow::highlightEmptyFields(const QStringList& fields, const QStringList& values)
+{
+    // Réinitialiser tous les styles d'abord
+    QList<QLineEdit*> lineEdits = findChildren<QLineEdit*>();
+    for (QLineEdit* lineEdit : lineEdits) {
+        lineEdit->setStyleSheet("background-color: white; border: 1px solid #6C757D;");
+    }
+
+    QList<QComboBox*> comboBoxes = findChildren<QComboBox*>();
+    for (QComboBox* comboBox : comboBoxes) {
+        comboBox->setStyleSheet("background-color: white; border: 1px solid #6C757D;");
+    }
+
+    QList<QTextEdit*> textEdits = findChildren<QTextEdit*>();
+    for (QTextEdit* textEdit : textEdits) {
+        textEdit->setStyleSheet("background-color: white; border: 1px solid #6C757D;");
+    }
+
+    // Mettre en évidence les champs vides
+    for (int i = 0; i < fields.size(); ++i) {
+        if (values[i].isEmpty()) {
+            // Trouver le widget correspondant au champ
+            if (fields[i] == "CIN") {
+                ui->lineEditId->setStyleSheet("background-color: #FFE6E6; border: 2px solid #DC3545;");
+            } else if (fields[i] == "Nom") {
+                ui->lineEditMarque_3->setStyleSheet("background-color: #FFE6E6; border: 2px solid #DC3545;");
+            } else if (fields[i] == "Prénom") {
+                ui->lineEditMarque_2->setStyleSheet("background-color: #FFE6E6; border: 2px solid #DC3545;");
+            } else if (fields[i] == "Téléphone") {
+                ui->lineEditTelephone->setStyleSheet("background-color: #FFE6E6; border: 2px solid #DC3545;");
+            } else if (fields[i] == "Numéro de série") {
+                ui->lineEditNumeroSerie->setStyleSheet("background-color: #FFE6E6; border: 2px solid #DC3545;");
+            } else if (fields[i] == "Marque") {
+                ui->lineEditMarque->setStyleSheet("background-color: #FFE6E6; border: 2px solid #DC3545;");
+            } else if (fields[i] == "Modèle") {
+                ui->lineEditModele->setStyleSheet("background-color: #FFE6E6; border: 2px solid #DC3545;");
+            } else if (fields[i] == "ID Réparation") {
+                ui->lineEdit_2->setStyleSheet("background-color: #FFE6E6; border: 2px solid #DC3545;");
+            } else if (fields[i] == "Matricule Réparation") {
+                ui->lineEdit->setStyleSheet("background-color: #FFE6E6; border: 2px solid #DC3545;");
+            } else if (fields[i] == "Description Panne") {
+                ui->textEditPanne->setStyleSheet("background-color: #FFE6E6; border: 2px solid #DC3545;");
+            } else if (fields[i] == "CIN Employé") {
+                ui->lineEdit_3->setStyleSheet("background-color: #FFE6E6; border: 2px solid #DC3545;");
+            } else if (fields[i] == "Numéro Série") {
+                ui->lineEdit_4->setStyleSheet("background-color: #FFE6E6; border: 2px solid #DC3545;");
+            }
+        }
+    }
 }

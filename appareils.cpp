@@ -59,7 +59,6 @@ bool Appareils::existeDeja(int numSerie)
     return false;
 }
 
-// SUPPRIMER LA DEUXIÈME DÉFINITION DE ajouter() ET GARDER CELLE-CI :
 bool Appareils::ajouter()
 {
     // Validation des données

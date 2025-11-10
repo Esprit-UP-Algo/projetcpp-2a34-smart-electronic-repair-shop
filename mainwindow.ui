@@ -196,7 +196,7 @@ QTabBar::tab:hover {
 }</string>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="tabDashboard">
        <attribute name="title">
@@ -709,7 +709,7 @@ color: rgb(255, 255, 255);
 font: 900 12pt &quot;Swis721 BlkCn BT&quot;;</string>
                </property>
                <property name="text">
-                <string>Réinitialiser</string>
+                <string>trier par nom</string>
                </property>
               </widget>
              </item>
@@ -1487,7 +1487,7 @@ color: rgb(255, 255, 255);
 font: 900 12pt &quot;Swis721 BlkCn BT&quot;;</string>
                </property>
                <property name="text">
-                <string>Réinitialiser</string>
+                <string>trier par numero serie</string>
                </property>
               </widget>
              </item>
@@ -1596,12 +1596,38 @@ background-color: #2c3147;</string>
 color: rgb(255, 255, 255);</string>
              </property>
              <property name="text">
-              <string>Matricule Appareil :</string>
+              <string>Matricule Reparation :</string>
              </property>
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QComboBox" name="comboBoxAppareilReparation">
+            <widget class="QLineEdit" name="lineEdit">
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(255, 255, 255);
+color: black;
+border-color: rgb(0, 0, 0);</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="labelPanne">
+             <property name="styleSheet">
+              <string notr="true">font: 14pt &quot;Bauhaus 93&quot;;
+color: rgb(255, 255, 255);</string>
+             </property>
+             <property name="text">
+              <string>Panne:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QTextEdit" name="textEditPanne">
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>80</height>
+              </size>
+             </property>
              <property name="styleSheet">
               <string notr="true">background-color: rgb(255, 255, 255);
 color: black;
@@ -1629,32 +1655,6 @@ border-color: rgb(0, 0, 0);</string>
              </property>
              <property name="calendarPopup">
               <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QTextEdit" name="textEditPanne">
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>80</height>
-              </size>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(255, 255, 255);
-color: black;
-border-color: rgb(0, 0, 0);</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="labelPanne">
-             <property name="styleSheet">
-              <string notr="true">font: 14pt &quot;Bauhaus 93&quot;;
-color: rgb(255, 255, 255);</string>
-             </property>
-             <property name="text">
-              <string>Panne:</string>
              </property>
             </widget>
            </item>
@@ -1742,7 +1742,7 @@ border-color: rgb(0, 0, 0);</string>
              </property>
             </widget>
            </item>
-           <item row="6" column="0" colspan="2">
+           <item row="9" column="0" colspan="2">
             <layout class="QHBoxLayout" name="horizontalLayoutButtonsReparations">
              <item>
               <widget class="QPushButton" name="btnAjouterReparation">
@@ -1781,6 +1781,66 @@ color: rgb(255, 255, 255);</string>
               </widget>
              </item>
             </layout>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="label">
+             <property name="styleSheet">
+              <string notr="true">font: 14pt &quot;Bauhaus 93&quot;;
+color: rgb(255, 255, 255);</string>
+             </property>
+             <property name="text">
+              <string>id reparation :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="0">
+            <widget class="QLabel" name="label_2">
+             <property name="styleSheet">
+              <string notr="true">font: 14pt &quot;Bauhaus 93&quot;;
+color: rgb(255, 255, 255);</string>
+             </property>
+             <property name="text">
+              <string>numero serie :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="0">
+            <widget class="QLabel" name="label_3">
+             <property name="styleSheet">
+              <string notr="true">font: 14pt &quot;Bauhaus 93&quot;;
+color: rgb(255, 255, 255);</string>
+             </property>
+             <property name="text">
+              <string>cin employe :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QLineEdit" name="lineEdit_2">
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(255, 255, 255);
+color: black;
+border-color: rgb(0, 0, 0);</string>
+             </property>
+            </widget>
+           </item>
+           <item row="7" column="1">
+            <widget class="QLineEdit" name="lineEdit_3">
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(255, 255, 255);
+color: black;
+border-color: rgb(0, 0, 0);</string>
+             </property>
+            </widget>
+           </item>
+           <item row="8" column="1">
+            <widget class="QLineEdit" name="lineEdit_4">
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(255, 255, 255);
+color: black;
+border-color: rgb(0, 0, 0);</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -1866,7 +1926,7 @@ color: rgb(255, 255, 255);
 font: 900 12pt &quot;Swis721 BlkCn BT&quot;;</string>
                </property>
                <property name="text">
-                <string>Réinitialiser</string>
+                <string>trier par cout</string>
                </property>
               </widget>
              </item>
