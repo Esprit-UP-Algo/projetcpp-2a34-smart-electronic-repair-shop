@@ -1,0 +1,844 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1407</width>
+    <height>972</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Smart Repair Hub - Gestion Complète</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QMainWindow {
+    background-color: #2c3147;
+    font-family: 'Roboto Regular';
+}
+QGroupBox {
+    font-weight: bold;
+    font-family: 'Montserrat Bold';
+    color: #007BFF;
+    border: 2px solid #007BFF;
+    border-radius: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    background-color: white;
+}
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 5px 0 5px;
+}
+QPushButton {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-family: 'Montserrat Bold';
+}
+QPushButton:hover {
+    background-color: #0056b3;
+}
+QPushButton:disabled {
+    background-color: #6C757D;
+}
+QPushButton.warning {
+    background-color: #FD7E14;
+}
+QPushButton.warning:hover {
+    background-color: #e56a00;
+}
+QPushButton.success {
+    background-color: #28A745;
+}
+QPushButton.success:hover {
+    background-color: #218838;
+}
+QLineEdit, QComboBox, QDateEdit, QTextEdit {
+    padding: 6px;
+    border: 1px solid #6C757D;
+    border-radius: 4px;
+    background-color: white;
+}
+QTableView {
+    border: 1px solid #6C757D;
+    border-radius: 4px;
+    background-color: white;
+    gridline-color: #e0e0e0;
+    selection-background-color: #007BFF;
+}
+QTableView::item:selected {
+    background-color: #007BFF;
+    color: white;
+}
+QHeaderView::section {
+    background-color: #007BFF;
+    color: white;
+    padding: 8px;
+    border: none;
+    font-family: 'Montserrat Bold';
+}
+QTabWidget::pane {
+    border: 1px solid #6C757D;
+    border-radius: 4px;
+    background-color: white;
+}
+QTabBar::tab {
+    background-color: #e9ecef;
+    color: #6C757D;
+    padding: 8px 15px;
+    margin-right: 2px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+QTabBar::tab:selected {
+    background-color: #007BFF;
+    color: white;
+}
+QLabel {
+    font-family: 'Roboto Regular';
+    color: #343a40;
+}
+QLabel.title {
+    font-family: 'Montserrat Bold';
+    font-size: 16px;
+    color: #007BFF;
+}
+QFrame#frameTotalClients, QFrame#frameReparationsAttente, QFrame#frameReparationsCours {
+    background-color: #2c3147;
+    border: 2px solid #35b95f;
+    border-radius: 8px;
+}</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayoutHeader">
+      <item>
+       <widget class="QLabel" name="labelLogo">
+        <property name="minimumSize">
+         <size>
+          <width>120</width>
+          <height>80</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>120</width>
+          <height>80</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: transparent;
+background-color: rgb(44, 49, 71);
+border: none;</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap>../logo.png</pixmap>
+        </property>
+        <property name="scaledContents">
+         <bool>true</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelTitle">
+        <property name="styleSheet">
+         <string notr="true">font: 700 40pt &quot;Bahnschrift&quot;;
+color: #35b95f;
+margin: 0px;
+background-color: #2c3147;</string>
+        </property>
+        <property name="text">
+         <string>FIXHUB</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignmentFlag::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QTabWidget" name="tabWidget">
+      <property name="styleSheet">
+       <string notr="true">QTabWidget::pane {
+    border: 2px solid #2c3147;
+    border-radius: 8px;
+    background-color: #2c3147;
+}
+QTabBar::tab {
+    background-color: #e9ecef;
+    color: #6C757D;
+    padding: 10px 20px;
+    margin-right: 2px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    font-family: 'Montserrat Bold';
+}
+QTabBar::tab:selected {
+    background-color: #35b95f;
+    color: white;
+}
+QTabBar::tab:hover {
+    background-color: #d0d0d0;
+}</string>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tabClients">
+       <attribute name="title">
+        <string>Gestion Clients</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayoutClients">
+        <item>
+         <widget class="QGroupBox" name="groupBoxFormulaireClients">
+          <property name="minimumSize">
+           <size>
+            <width>400</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font: 700 16pt &quot;Bahnschrift&quot;;
+color: rgb(53, 185, 95);
+border-color: rgb(53, 185, 95);
+background-color: #2c3147;</string>
+          </property>
+          <property name="title">
+           <string>Formulaire Client</string>
+          </property>
+          <layout class="QFormLayout" name="formLayoutClients">
+           <item row="0" column="0">
+            <widget class="QLabel" name="labelIdClient">
+             <property name="styleSheet">
+              <string notr="true">font: 14pt &quot;Bauhaus 93&quot;;
+color: rgb(255, 255, 255);</string>
+             </property>
+             <property name="text">
+              <string>CIN CLIENT:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLineEdit" name="lineEditIdClient">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(255, 255, 255);
+border-color: rgb(0, 0, 0);
+color: black;</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="labelNom">
+             <property name="styleSheet">
+              <string notr="true">font: 14pt &quot;Bauhaus 93&quot;;
+color: rgb(255, 255, 255);</string>
+             </property>
+             <property name="text">
+              <string>Nom :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="lineEditNom">
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(255, 255, 255);
+color: black;
+border-color: rgb(0, 0, 0);</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QLabel" name="labelPrenom">
+             <property name="styleSheet">
+              <string notr="true">font: 14pt &quot;Bauhaus 93&quot;;
+color: rgb(255, 255, 255);</string>
+             </property>
+             <property name="text">
+              <string>Prénom :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="1">
+            <widget class="QLineEdit" name="lineEditPrenom">
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(255, 255, 255);
+color: black;
+border-color: rgb(0, 0, 0);</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="labelEmail">
+             <property name="styleSheet">
+              <string notr="true">font: 14pt &quot;Bauhaus 93&quot;;
+color: rgb(255, 255, 255);</string>
+             </property>
+             <property name="text">
+              <string>Email :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QLineEdit" name="lineEditEmail">
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(255, 255, 255);
+color: black;
+border-color: rgb(0, 0, 0);</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="0">
+            <widget class="QLabel" name="labelTelephone">
+             <property name="styleSheet">
+              <string notr="true">font: 14pt &quot;Bauhaus 93&quot;;
+color: rgb(255, 255, 255);</string>
+             </property>
+             <property name="text">
+              <string>Téléphone:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="4" column="1">
+            <widget class="QLineEdit" name="lineEditTelephone">
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(255, 255, 255);
+color: black;
+border-color: rgb(0, 0, 0);</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="0">
+            <widget class="QLabel" name="labelAdresse">
+             <property name="styleSheet">
+              <string notr="true">font: 14pt &quot;Bauhaus 93&quot;;
+color: rgb(255, 255, 255);</string>
+             </property>
+             <property name="text">
+              <string>Adresse:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="1">
+            <widget class="QLineEdit" name="lineEditAdresse">
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(255, 255, 255);
+color: black;
+border-color: rgb(0, 0, 0);</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="0">
+            <widget class="QLabel" name="labelDateInscription">
+             <property name="styleSheet">
+              <string notr="true">font: 14pt &quot;Bauhaus 93&quot;;
+color: rgb(255, 255, 255);</string>
+             </property>
+             <property name="text">
+              <string>Date Naissance:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="6" column="1">
+            <widget class="QDateEdit" name="dateEditInscription">
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(255, 255, 255);font: 9pt &quot;Segoe UI&quot;;
+color: black;
+border-color: rgb(0, 0, 0);</string>
+             </property>
+             <property name="calendarPopup">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+
+           <!-- Section Métiers Innovants -->
+           <item row="7" column="0" colspan="2">
+            <widget class="QGroupBox" name="groupBoxMetiersInnovants">
+             <property name="styleSheet">
+              <string notr="true">font: 700 14pt &quot;Bahnschrift&quot;;
+color: #17A2B8;
+border-color: #17A2B8;
+background-color: #2c3147;
+margin-top: 10px;</string>
+             </property>
+             <property name="title">
+              <string>🎯 Métiers Innovants</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayoutMetiersInnovants">
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayoutMetiersButtons">
+                <item>
+                 <widget class="QPushButton" name="btnAnalyserFidelite">
+                  <property name="styleSheet">
+                   <string notr="true">background-color: #17A2B8;
+font: 900 10pt &quot;Swis721 BlkCn BT&quot;;
+color: rgb(255, 255, 255);
+border-radius: 6px;
+padding: 8px 12px;</string>
+                  </property>
+                  <property name="text">
+                   <string>📊 Analyse Fidélité</string>
+                  </property>
+                  <property name="toolTip">
+                   <string>Analyser le score de fidélité et prédire le prochain retour</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btnMaintenancePreventive">
+                  <property name="styleSheet">
+                   <string notr="true">background-color: #6F42C1;
+font: 900 10pt &quot;Swis721 BlkCn BT&quot;;
+color: rgb(255, 255, 255);
+border-radius: 6px;
+padding: 8px 12px;</string>
+                  </property>
+                  <property name="text">
+                   <string>🔧 Maintenance</string>
+                  </property>
+                  <property name="toolTip">
+                   <string>Analyser les appareils et recommander des maintenances préventives</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayoutActions">
+                <item>
+                 <widget class="QPushButton" name="btnGenererRapportFidelite">
+                  <property name="styleSheet">
+                   <string notr="true">background-color: #28A745;
+font: 900 9pt &quot;Swis721 BlkCn BT&quot;;
+color: rgb(255, 255, 255);
+border-radius: 5px;
+padding: 6px 10px;</string>
+                  </property>
+                  <property name="text">
+                   <string>📄 PDF Fidélité</string>
+                  </property>
+                  <property name="toolTip">
+                   <string>Générer un rapport PDF détaillé de fidélité</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="btnEnvoyerSMS">
+                  <property name="styleSheet">
+                   <string notr="true">background-color: #FD7E14;
+font: 900 9pt &quot;Swis721 BlkCn BT&quot;;
+color: rgb(255, 255, 255);
+border-radius: 5px;
+padding: 6px 10px;</string>
+                  </property>
+                  <property name="text">
+                   <string>📱 SMS Client</string>
+                  </property>
+                  <property name="toolTip">
+                   <string>Envoyer un SMS au client pour maintenance</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayoutProfil">
+                <item>
+                 <widget class="QLabel" name="labelProfilTitre">
+                  <property name="styleSheet">
+                   <string notr="true">font: 12pt &quot;Bauhaus 93&quot;;
+color: rgb(255, 255, 255);</string>
+                  </property>
+                  <property name="text">
+                   <string>Profil:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelProfilClient">
+                  <property name="styleSheet">
+                   <string notr="true">font: 12pt &quot;Bauhaus 93&quot;;
+color: #FD7E14;
+font-weight: bold;</string>
+                  </property>
+                  <property name="text">
+                   <string>Non analysé</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="horizontalSpacerProfil">
+                  <property name="orientation">
+                   <enum>Qt::Orientation::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelScoreTitre">
+                  <property name="styleSheet">
+                   <string notr="true">font: 12pt &quot;Bauhaus 93&quot;;
+color: rgb(255, 255, 255);</string>
+                  </property>
+                  <property name="text">
+                   <string>Score:</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="labelScoreFidelite">
+                  <property name="styleSheet">
+                   <string notr="true">font: 12pt &quot;Bauhaus 93&quot;;
+color: #17A2B8;
+font-weight: bold;</string>
+                  </property>
+                  <property name="text">
+                   <string>0/100</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+
+           <item row="8" column="0" colspan="2">
+            <layout class="QHBoxLayout" name="horizontalLayoutButtonsClients">
+             <item>
+              <widget class="QPushButton" name="btnAjouterClient">
+               <property name="styleSheet">
+                <string notr="true">background-color: #28A745;
+font: 900 12pt &quot;Swis721 BlkCn BT&quot;;
+color: rgb(255, 255, 255);</string>
+               </property>
+               <property name="text">
+                <string>Ajouter</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnModifierClient">
+               <property name="styleSheet">
+                <string notr="true">background-color: #007BFF;
+color: rgb(255, 255, 255);
+font: 900 12pt &quot;Swis721 BlkCn BT&quot;;</string>
+               </property>
+               <property name="text">
+                <string>Modifier</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnSupprimerClient">
+               <property name="styleSheet">
+                <string notr="true">background-color: #DC3545;
+font: 900 12pt &quot;Swis721 BlkCn BT&quot;;
+color: rgb(255, 255, 255);</string>
+               </property>
+               <property name="text">
+                <string>Supprimer</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBoxListeClients">
+          <property name="styleSheet">
+           <string notr="true">font: 700 16pt &quot;Bahnschrift&quot;;
+color: rgb(53, 185, 95);
+border-color: #35b95f;
+background-color: #2c3147;</string>
+          </property>
+          <property name="title">
+           <string>Liste des Clients</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayoutListeClients">
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayoutRechercheClients">
+             <item>
+              <widget class="QLabel" name="labelRechercheClient">
+               <property name="styleSheet">
+                <string notr="true">font: 14pt &quot;Bauhaus 93&quot;;
+color: rgb(255, 255, 255);</string>
+               </property>
+               <property name="text">
+                <string>Rechercher par:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="comboBoxCritereClient">
+               <property name="styleSheet">
+                <string notr="true">font: 9pt &quot;Segoe UI&quot;;
+background-color: rgb(255, 255, 255);
+color: black;</string>
+               </property>
+               <item>
+                <property name="text">
+                 <string>Nom</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Email</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Téléphone</string>
+                </property>
+               </item>
+               <item>
+                <property name="text">
+                 <string>Ville</string>
+                </property>
+               </item>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLineEdit" name="lineEditRechercheClient">
+               <property name="styleSheet">
+                <string notr="true">font: 9pt &quot;Segoe UI&quot;;
+background-color: rgb(255, 255, 255);
+color: black;</string>
+               </property>
+               <property name="placeholderText">
+                <string>Terme de recherche...</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnRechercherClient">
+               <property name="styleSheet">
+                <string notr="true">font: 900 12pt &quot;Swis721 BlkCn BT&quot;;
+background-color: #007BFF;
+color: white;</string>
+               </property>
+               <property name="text">
+                <string>Rechercher</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnReinitialiserClient">
+               <property name="styleSheet">
+                <string notr="true">background-color: #6C757D;
+color: rgb(255, 255, 255);
+font: 900 12pt &quot;Swis721 BlkCn BT&quot;;</string>
+               </property>
+               <property name="text">
+                <string>trier par nom</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QTableView" name="tableViewClients">
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(255, 255, 255);</string>
+             </property>
+             <property name="selectionMode">
+              <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+             </property>
+             <property name="selectionBehavior">
+              <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+             </property>
+             <property name="sortingEnabled">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayoutExportClients">
+             <item>
+              <widget class="QLabel" name="labelTotalClients">
+               <property name="styleSheet">
+                <string notr="true">font: 14pt &quot;Bauhaus 93&quot;;
+color: rgb(255, 255, 255);</string>
+               </property>
+               <property name="text">
+                <string>Total: 0 clients</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="labelProchainRetourTitre">
+               <property name="styleSheet">
+                <string notr="true">font: 12pt &quot;Bauhaus 93&quot;;
+color: rgb(255, 255, 255);</string>
+               </property>
+               <property name="text">
+                <string>Prochain retour:</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="labelProchainRetour">
+               <property name="styleSheet">
+                <string notr="true">font: 12pt &quot;Bauhaus 93&quot;;
+color: #17A2B8;
+font-weight: bold;</string>
+               </property>
+               <property name="text">
+                <string>Non prédit</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacerClient">
+               <property name="orientation">
+                <enum>Qt::Orientation::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnExporterPDFClient">
+               <property name="styleSheet">
+                <string notr="true">background-color: #DC3545;
+color: rgb(255, 255, 255);
+font: 900 12pt &quot;Swis721 BlkCn BT&quot;;</string>
+               </property>
+               <property name="text">
+                <string>Exporter PDF</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="btnExporterExcelClient">
+               <property name="styleSheet">
+                <string notr="true">background-color: #28A745;
+color: rgb(255, 255, 255);
+font: 900 12pt &quot;Swis721 BlkCn BT&quot;;</string>
+               </property>
+               <property name="text">
+                <string>Exporter Excel</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1407</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFichier">
+    <property name="title">
+     <string>Fichier</string>
+    </property>
+    <addaction name="actionNouveau"/>
+    <addaction name="actionOuvrir"/>
+    <addaction name="actionSauvegarder"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuitter"/>
+   </widget>
+   <widget class="QMenu" name="menuEdition">
+    <property name="title">
+     <string>Édition</string>
+    </property>
+    <addaction name="actionCopier"/>
+    <addaction name="actionColler"/>
+    <addaction name="actionAnnuler"/>
+   </widget>
+   <widget class="QMenu" name="menuAide">
+    <property name="title">
+     <string>Aide</string>
+    </property>
+    <addaction name="actionA_propos"/>
+   </widget>
+   <addaction name="menuFichier"/>
+   <addaction name="menuEdition"/>
+   <addaction name="menuAide"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionNouveau">
+   <property name="text">
+    <string>Nouveau</string>
+   </property>
+  </action>
+  <action name="actionOuvrir">
+   <property name="text">
+    <string>Ouvrir</string>
+   </property>
+  </action>
+  <action name="actionSauvegarder">
+   <property name="text">
+    <string>Sauvegarder</string>
+   </property>
+  </action>
+  <action name="actionQuitter">
+   <property name="text">
+    <string>Quitter</string>
+   </property>
+  </action>
+  <action name="actionCopier">
+   <property name="text">
+    <string>Copier</string>
+   </property>
+  </action>
+  <action name="actionColler">
+   <property name="text">
+    <string>Coller</string>
+   </property>
+  </action>
+  <action name="actionAnnuler">
+   <property name="text">
+    <string>Annuler</string>
+   </property>
+  </action>
+  <action name="actionA_propos">
+   <property name="text">
+    <string>À propos</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
