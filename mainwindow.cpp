@@ -1,375 +1,581 @@
 #include "mainwindow.h"
-#include "./ui_mainwindow.h"
+#include "ui_mainwindow.h"
+#include "qrcode.h"
 #include <QMessageBox>
-#include <QSqlError>
-#include <QSqlQuery>
+#include <QIntValidator>
 #include <QRegularExpression>
+#include <QRegularExpressionValidator>
+#include "employe.h"
+#include <QTextDocument>
+#include <QTextStream>
+#include <QFileDialog>
+#include <QDir>
+#include <QtPrintSupport/QPrinter>
+#include <QSqlError>
+#include <QDebug>
+#include <QLineEdit>
+#include <QInputDialog>
+#include <QDesktopServices>
+#include <QUrl>
+#include <QDateTime>
+
+#include "mailingservice.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , m_mailingService(nullptr)
+    , m_lastPdfPath("")
 {
     ui->setupUi(this);
-    setupDatabase();
-    chargerDonnees();
+    ui->tableViewAppareils_4->setModel(emp.afficher());
+    setupValidators();
+    setupRechercheField();
 
-    // Connecter les signaux pour la validation en temps réel
-    connect(ui->lineEditId, &QLineEdit::textChanged, this, &MainWindow::validerCIN);
-    connect(ui->lineEditMarque_3, &QLineEdit::textChanged, this, &MainWindow::validerNom);
-    connect(ui->lineEditMarque, &QLineEdit::textChanged, this, &MainWindow::validerPrenom);
-    connect(ui->lineEditModele, &QLineEdit::textChanged, this, &MainWindow::validerTelephone);
-    connect(ui->lineEditNumeroSerie, &QLineEdit::textChanged, this, &MainWindow::validerEmail);
+    m_mailingService = new MailingService(this);
+    setupMailingService();
+
+    connect(ui->btnAjouter_5, &QPushButton::clicked, this, &MainWindow::on_btnAjouter_5_clicked);
+    connect(ui->btnAjouter_6, &QPushButton::clicked, this, &MainWindow::on_btnAjouter_6_clicked);
+    connect(ui->btnSendRealEmail, &QPushButton::clicked, this, &MainWindow::on_btnSendRealEmail_clicked);
+    connect(ui->btnSendPdfEmail, &QPushButton::clicked, this, &MainWindow::on_btnSendPdfEmail_clicked);
+    connect(m_mailingService, &MailingService::emailSent, this, &MainWindow::onEmailSent);
+
+    ui->aaaz_2->setPlaceholderText("Sujet de l'email...");
+    ui->aaaz_3->setPlaceholderText("Message de l'email...");
+}
+
+void MainWindow::setupMailingService()
+{
+    if (!m_mailingService) return;
+
+    QString accountSid = "AC803507060566000080eC7c336ce64k4";
+    QString authToken = "ac530584992624a0c228546070kaae8";
+    QString fromEmail = "rh@votre-entreprise.com";
+
+    m_mailingService->setTwilioCredentials(accountSid, authToken, fromEmail);
+}
+
+void MainWindow::setupRechercheField()
+{
+    QLineEdit *rechercheField = ui->centralwidget->findChild<QLineEdit*>("aaaz");
+    if (rechercheField) {
+        rechercheField->setPlaceholderText("Entrez le nom de l'employé...");
+    }
+}
+
+void MainWindow::setupValidators()
+{
+    QRegularExpressionValidator *cinValidator = new QRegularExpressionValidator(QRegularExpression("^\\d{8}$"), this);
+    ui->id->setValidator(cinValidator);
+
+    QRegularExpressionValidator *phoneValidator = new QRegularExpressionValidator(QRegularExpression("^\\d{8}$"), this);
+    ui->tlf->setValidator(phoneValidator);
+
+    QRegularExpressionValidator *emailValidator = new QRegularExpressionValidator(QRegularExpression("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"), this);
+    ui->email->setValidator(emailValidator);
+
+    QRegularExpressionValidator *nameValidator = new QRegularExpressionValidator(QRegularExpression("^[a-zA-ZÀ-ÿ\\s\\-']+$"), this);
+    ui->nom->setValidator(nameValidator);
+    ui->prenom->setValidator(nameValidator);
+}
+
+QString MainWindow::getRechercheText()
+{
+    QLineEdit *field = ui->centralwidget->findChild<QLineEdit*>("aaaz");
+    if (field) {
+        return field->text().trimmed();
+    }
+    return "";
+}
+
+void MainWindow::setRechercheFocus()
+{
+    QLineEdit *field = ui->centralwidget->findChild<QLineEdit*>("aaaz");
+    if (field) {
+        field->setFocus();
+    }
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
-    db.close();
-}
-
-void MainWindow::setupDatabase()
-{
-    db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("employes.db");
-
-    if (!db.open()) {
-        QMessageBox::critical(this, "Erreur", "Impossible d'ouvrir la base de données: " + db.lastError().text());
-        return;
-    }
-
-    QSqlQuery query;
-    query.exec("CREATE TABLE IF NOT EXISTS employes ("
-               "cin TEXT PRIMARY KEY, "
-               "nom TEXT NOT NULL, "
-               "prenom TEXT NOT NULL, "
-               "num_tel TEXT NOT NULL, "
-               "email TEXT NOT NULL)");
-
-    model = new QSqlTableModel(this, db);
-    model->setTable("employes");
-    model->setEditStrategy(QSqlTableModel::OnManualSubmit);
-
-    model->setHeaderData(0, Qt::Horizontal, "CIN");
-    model->setHeaderData(1, Qt::Horizontal, "Nom");
-    model->setHeaderData(2, Qt::Horizontal, "Prénom");
-    model->setHeaderData(3, Qt::Horizontal, "Num Tel");
-    model->setHeaderData(4, Qt::Horizontal, "Email");
-
-    model->select();
-
-    ui->tableViewAppareils->setModel(model);
-    ui->tableViewAppareils->setSelectionBehavior(QAbstractItemView::SelectRows);
-    ui->tableViewAppareils->setSelectionMode(QAbstractItemView::SingleSelection);
-
-    ui->lineEditId->setEnabled(true);
-}
-
-void MainWindow::chargerDonnees()
-{
-    model->select();
-    ui->tableViewAppareils->resizeColumnsToContents();
-}
-
-void MainWindow::viderChamps()
-{
-    ui->lineEditId->clear();
-    ui->lineEditMarque_3->clear();
-    ui->lineEditMarque->clear();
-    ui->lineEditModele->clear();
-    ui->lineEditNumeroSerie->clear();
-
-    ui->lineEditId->setReadOnly(false);
-
-    // Réinitialiser les styles
-    ui->lineEditId->setStyleSheet("");
-    ui->lineEditMarque_3->setStyleSheet("");
-    ui->lineEditMarque->setStyleSheet("");
-    ui->lineEditModele->setStyleSheet("");
-    ui->lineEditNumeroSerie->setStyleSheet("");
-}
-
-// Validation en temps réel pour le CIN
-void MainWindow::validerCIN()
-{
-    QString cin = ui->lineEditId->text();
-    QRegularExpression regex("^[0-9]{8}$");
-
-    if (cin.isEmpty()) {
-        ui->lineEditId->setStyleSheet("");
-        QToolTip::hideText();
-    } else if (!regex.match(cin).hasMatch()) {
-        ui->lineEditId->setStyleSheet("border: 2px solid red;");
-        QToolTip::showText(ui->lineEditId->mapToGlobal(QPoint(0, -50)),
-                           "❌ CIN invalide: 8 chiffres requis (ex: 12345678)",
-                           ui->lineEditId);
-    } else {
-        ui->lineEditId->setStyleSheet("border: 2px solid green;");
-        QToolTip::hideText();
+    if (m_mailingService) {
+        delete m_mailingService;
     }
 }
 
-// Validation en temps réel pour le Nom
-void MainWindow::validerNom()
+bool MainWindow::validateFields()
 {
-    QString nom = ui->lineEditMarque_3->text();
-    QRegularExpression regex("^[a-zA-ZÀ-ÿ\\s]+$");
-
-    if (nom.isEmpty()) {
-        ui->lineEditMarque_3->setStyleSheet("");
-        QToolTip::hideText();
-    } else if (!regex.match(nom).hasMatch()) {
-        ui->lineEditMarque_3->setStyleSheet("border: 2px solid red;");
-        QToolTip::showText(ui->lineEditMarque_3->mapToGlobal(QPoint(0, -50)),
-                           "❌ Nom invalide: lettres uniquement",
-                           ui->lineEditMarque_3);
-    } else {
-        ui->lineEditMarque_3->setStyleSheet("border: 2px solid green;");
-        QToolTip::hideText();
-    }
-}
-
-// Validation en temps réel pour le Prénom
-void MainWindow::validerPrenom()
-{
-    QString prenom = ui->lineEditMarque->text();
-    QRegularExpression regex("^[a-zA-ZÀ-ÿ\\s]+$");
-
-    if (prenom.isEmpty()) {
-        ui->lineEditMarque->setStyleSheet("");
-        QToolTip::hideText();
-    } else if (!regex.match(prenom).hasMatch()) {
-        ui->lineEditMarque->setStyleSheet("border: 2px solid red;");
-        QToolTip::showText(ui->lineEditMarque->mapToGlobal(QPoint(0, -50)),
-                           "❌ Prénom invalide: lettres uniquement",
-                           ui->lineEditMarque);
-    } else {
-        ui->lineEditMarque->setStyleSheet("border: 2px solid green;");
-        QToolTip::hideText();
-    }
-}
-
-// Validation en temps réel pour le Téléphone
-void MainWindow::validerTelephone()
-{
-    QString tel = ui->lineEditModele->text();
-    QRegularExpression regex("^[0-9]{8}$");
-
-    if (tel.isEmpty()) {
-        ui->lineEditModele->setStyleSheet("");
-        QToolTip::hideText();
-    } else if (!regex.match(tel).hasMatch()) {
-        ui->lineEditModele->setStyleSheet("border: 2px solid red;");
-        QToolTip::showText(ui->lineEditModele->mapToGlobal(QPoint(0, -50)),
-                           "❌ Téléphone invalide: 8 chiffres requis (ex: 98765432)",
-                           ui->lineEditModele);
-    } else {
-        ui->lineEditModele->setStyleSheet("border: 2px solid green;");
-        QToolTip::hideText();
-    }
-}
-
-// Validation en temps réel pour l'Email
-void MainWindow::validerEmail()
-{
-    QString email = ui->lineEditNumeroSerie->text();
-    QRegularExpression regex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
-
-    if (email.isEmpty()) {
-        ui->lineEditNumeroSerie->setStyleSheet("");
-        QToolTip::hideText();
-    } else if (!email.contains("@")) {
-        ui->lineEditNumeroSerie->setStyleSheet("border: 2px solid red;");
-        QToolTip::showText(ui->lineEditNumeroSerie->mapToGlobal(QPoint(0, -50)),
-                           "❌ Email invalide: @ requis",
-                           ui->lineEditNumeroSerie);
-    } else if (!regex.match(email).hasMatch()) {
-        ui->lineEditNumeroSerie->setStyleSheet("border: 2px solid red;");
-        QToolTip::showText(ui->lineEditNumeroSerie->mapToGlobal(QPoint(0, -50)),
-                           "❌ Format email invalide (ex: nom@domaine.com)",
-                           ui->lineEditNumeroSerie);
-    } else {
-        ui->lineEditNumeroSerie->setStyleSheet("border: 2px solid green;");
-        QToolTip::hideText();
-    }
-}
-
-bool MainWindow::validerDonnees(QString cin, QString nom, QString prenom, QString numTel, QString email)
-{
-    if (cin.isEmpty() || nom.isEmpty() || prenom.isEmpty() || numTel.isEmpty() || email.isEmpty()) {
-        QMessageBox::warning(this, "Attention", "Veuillez remplir tous les champs!");
+    if (ui->id->text().isEmpty()) {
+        QMessageBox::warning(this, "Validation", "Le CIN est obligatoire.");
+        ui->id->setFocus();
         return false;
     }
 
-    // Validation CIN : uniquement des chiffres (8 chiffres)
-    QRegularExpression regexCin("^[0-9]{8}$");
-    if (!regexCin.match(cin).hasMatch()) {
-        QMessageBox::warning(this, "Erreur CIN",
-                             "❌ Le CIN doit contenir exactement 8 chiffres!\n"
-                             "Exemple: 12345678");
+    if (ui->id->text().length() != 8) {
+        QMessageBox::warning(this, "Validation", "Le CIN doit contenir exactement 8 chiffres.");
+        ui->id->setFocus();
         return false;
     }
 
-    // Validation Nom : uniquement des lettres
-    QRegularExpression regexNom("^[a-zA-ZÀ-ÿ\\s]+$");
-    if (!regexNom.match(nom).hasMatch()) {
-        QMessageBox::warning(this, "Erreur Nom",
-                             "❌ Le nom ne doit contenir que des lettres!\n"
-                             "Les chiffres et caractères spéciaux ne sont pas autorisés.");
+    if (ui->nom->text().isEmpty()) {
+        QMessageBox::warning(this, "Validation", "Le nom est obligatoire.");
+        ui->nom->setFocus();
         return false;
     }
 
-    // Validation Prénom : uniquement des lettres
-    if (!regexNom.match(prenom).hasMatch()) {
-        QMessageBox::warning(this, "Erreur Prénom",
-                             "❌ Le prénom ne doit contenir que des lettres!\n"
-                             "Les chiffres et caractères spéciaux ne sont pas autorisés.");
+    QRegularExpression nameRegex("^[a-zA-ZÀ-ÿ\\s\\-']+$");
+    if (!nameRegex.match(ui->nom->text()).hasMatch()) {
+        QMessageBox::warning(this, "Validation", "Le nom ne doit contenir que des lettres.");
+        ui->nom->setFocus();
         return false;
     }
 
-    // Validation Téléphone : uniquement des chiffres (8 chiffres)
-    QRegularExpression regexTel("^[0-9]{8}$");
-    if (!regexTel.match(numTel).hasMatch()) {
-        QMessageBox::warning(this, "Erreur Téléphone",
-                             "❌ Le numéro de téléphone doit contenir exactement 8 chiffres!\n"
-                             "Exemple: 98765432");
+    if (ui->prenom->text().isEmpty()) {
+        QMessageBox::warning(this, "Validation", "Le prénom est obligatoire.");
+        ui->prenom->setFocus();
         return false;
     }
 
-    // Validation Email : format complet
-    QRegularExpression regexEmail("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
-    if (!regexEmail.match(email).hasMatch()) {
-        QMessageBox::warning(this, "Erreur Email",
-                             "❌ Format d'email invalide!\n"
-                             "Exemple: nom@domaine.com");
+    if (!nameRegex.match(ui->prenom->text()).hasMatch()) {
+        QMessageBox::warning(this, "Validation", "Le prénom ne doit contenir que des lettres.");
+        ui->prenom->setFocus();
         return false;
     }
+
+    if (ui->tlf->text().isEmpty()) {
+        QMessageBox::warning(this, "Validation", "Le téléphone est obligatoire.");
+        ui->tlf->setFocus();
+        return false;
+    }
+
+    if (ui->tlf->text().length() != 8) {
+        QMessageBox::warning(this, "Validation", "Le téléphone doit contenir exactement 8 chiffres.");
+        ui->tlf->setFocus();
+        return false;
+    }
+
+    if (ui->email->text().isEmpty()) {
+        QMessageBox::warning(this, "Validation", "L'email est obligatoire.");
+        ui->email->setFocus();
+        return false;
+    }
+
+    QRegularExpression emailRegex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    if (!emailRegex.match(ui->email->text()).hasMatch()) {
+        QMessageBox::warning(this, "Validation", "L'email doit être de la forme: exemple@domaine.com");
+        ui->email->setFocus();
+        return false;
+    }
+
 
     return true;
 }
 
-void MainWindow::on_btnAjouter_clicked()
+void MainWindow::on_btnAjouter_4_clicked()
 {
-    QString cin = ui->lineEditId->text();
-    QString nom = ui->lineEditMarque_3->text();
-    QString prenom = ui->lineEditMarque->text();
-    QString numTel = ui->lineEditModele->text();
-    QString email = ui->lineEditNumeroSerie->text();
+    if (!validateFields()) return;
 
-    if (!validerDonnees(cin, nom, prenom, numTel, email)) {
-        return;
-    }
+    int cin = ui->id->text().toInt();
+    QString nom = ui->nom->text();
+    QString prenom = ui->prenom->text();
+    QString tel = ui->tlf->text();
+    QString email = ui->email->text();
+    QString presence = ui->presence->text();
 
-    QSqlQuery query;
-    query.prepare("INSERT INTO employes (cin, nom, prenom, num_tel, email) "
-                  "VALUES (:cin, :nom, :prenom, :numTel, :email)");
-    query.bindValue(":cin", cin);
-    query.bindValue(":nom", nom);
-    query.bindValue(":prenom", prenom);
-    query.bindValue(":numTel", numTel);
-    query.bindValue(":email", email);
+    Employe e(cin, nom, prenom, tel, email, presence);
+    bool test = e.ajouter();
 
-    if (query.exec()) {
-        QMessageBox::information(this, "Succès", "✅ Employé ajouté avec succès!");
-        chargerDonnees();
-        viderChamps();
+    if(test) {
+        ui->tableViewAppareils_4->setModel(emp.afficher());
+        QMessageBox::information(this, "Ajout", "Ajout effectué avec succès.");
+        ui->id->clear();
+        ui->nom->clear();
+        ui->prenom->clear();
+        ui->tlf->clear();
+        ui->email->clear();
+        ui->presence->clear();
     } else {
-        QMessageBox::critical(this, "Erreur", "Erreur: " + query.lastError().text());
+        QMessageBox::critical(this, "Ajout", "Échec d'ajout !");
     }
 }
 
-void MainWindow::on_btnModifier_clicked()
+void MainWindow::on_btnModifier_4_clicked()
 {
-    QString cin = ui->lineEditId->text();
+    if (!validateFields()) return;
 
-    if (cin.isEmpty()) {
-        QMessageBox::warning(this, "Attention", "Veuillez sélectionner un employé à modifier!");
-        return;
-    }
+    int cin = ui->id->text().toInt();
+    QString nom = ui->nom->text();
+    QString prenom = ui->prenom->text();
+    QString tel = ui->tlf->text();
+    QString email = ui->email->text();
+    QString presence = ui->presence->text();
 
-    QString nom = ui->lineEditMarque_3->text();
-    QString prenom = ui->lineEditMarque->text();
-    QString numTel = ui->lineEditModele->text();
-    QString email = ui->lineEditNumeroSerie->text();
+    Employe e(cin, nom, prenom, tel, email, presence);
+    bool test = e.modifier(cin);
 
-    if (!validerDonnees(cin, nom, prenom, numTel, email)) {
-        return;
-    }
-
-    QSqlQuery query;
-    query.prepare("UPDATE employes SET nom=:nom, prenom=:prenom, "
-                  "num_tel=:numTel, email=:email WHERE cin=:cin");
-    query.bindValue(":cin", cin);
-    query.bindValue(":nom", nom);
-    query.bindValue(":prenom", prenom);
-    query.bindValue(":numTel", numTel);
-    query.bindValue(":email", email);
-
-    if (query.exec()) {
-        QMessageBox::information(this, "Succès", "✅ Employé modifié avec succès!");
-        chargerDonnees();
-        viderChamps();
+    if (test) {
+        ui->tableViewAppareils_4->setModel(emp.afficher());
+        QMessageBox::information(this, "Modifier", "Modification réussie.");
     } else {
-        QMessageBox::critical(this, "Erreur", "Erreur: " + query.lastError().text());
+        QMessageBox::critical(this, "Modifier", "Échec de modification !");
     }
 }
 
-void MainWindow::on_btnSupprimer_clicked()
+void MainWindow::on_btnSupprimer_4_clicked()
 {
-    QString cin = ui->lineEditId->text();
-
-    if (cin.isEmpty()) {
-        QMessageBox::warning(this, "Attention", "Veuillez sélectionner un employé à supprimer!");
+    if (ui->id->text().isEmpty()) {
+        QMessageBox::warning(this, "Suppression", "Veuillez sélectionner un employé à supprimer.");
         return;
     }
+
+    int i;
+    QModelIndex index = ui->tableViewAppareils_4->currentIndex();
+    i = index.row();
+    QModelIndex in = index.sibling(i, 0);
+    QString cinStr = ui->tableViewAppareils_4->model()->data(in).toString();
+    int cin = cinStr.toInt();
 
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, "Confirmation",
-                                  "Êtes-vous sûr de vouloir supprimer cet employé?",
+                                  "Êtes-vous sûr de vouloir supprimer cet employé ?",
                                   QMessageBox::Yes | QMessageBox::No);
 
-    if (reply == QMessageBox::Yes) {
-        QSqlQuery query;
-        query.prepare("DELETE FROM employes WHERE cin=:cin");
-        query.bindValue(":cin", cin);
+    if (reply == QMessageBox::No) return;
 
-        if (query.exec()) {
-            QMessageBox::information(this, "Succès", "✅ Employé supprimé avec succès!");
-            chargerDonnees();
-            viderChamps();
-        } else {
-            QMessageBox::critical(this, "Erreur", "Erreur: " + query.lastError().text());
+    bool test = emp.supprimer(cin);
+
+    if (test) {
+        ui->tableViewAppareils_4->setModel(emp.afficher());
+        QMessageBox::information(this, "Suppression", "Supprimé avec succès.");
+        ui->id->clear();
+        ui->nom->clear();
+        ui->prenom->clear();
+        ui->tlf->clear();
+        ui->email->clear();
+        ui->presence->clear();
+    } else {
+        QMessageBox::critical(this, "Suppression", "Échec de suppression !");
+    }
+}
+
+void MainWindow::on_tableViewAppareils_4_clicked(const QModelIndex &index)
+{
+    if (!index.isValid()) return;
+    QString qrCodeData;
+
+    int row = index.row();
+    QString cin = ui->tableViewAppareils_4->model()->data(index.sibling(row, 0)).toString();
+
+    QSqlQuery qry;
+    qry.prepare("SELECT CINEM, NOM, PRENOM, TELEPHONE, EMAIL, PRESENCE FROM EMPLOYE WHERE CINEM = :cin");
+    qry.bindValue(":cin", cin);
+
+    if (qry.exec() && qry.next()) {
+        ui->id->setText(qry.value("CINEM").toString());
+        ui->nom->setText(qry.value("NOM").toString());
+        ui->prenom->setText(qry.value("PRENOM").toString());
+        ui->email->setText(qry.value("EMAIL").toString());
+        ui->tlf->setText(qry.value("TELEPHONE").toString());
+        ui->presence->setText(qry.value("PRESENCE").toString());
+
+        qrCodeData =
+            "CIN=" + qry.value("CINEM").toString() + "\n"
+                                                     "NOM=" + qry.value("NOM").toString() + "\n"
+                                            "PRENOM=" + qry.value("PRENOM").toString() + "\n"
+                                               "EMAIL=" + qry.value("EMAIL").toString() + "\n"
+                                              "TEL=" + qry.value("TELEPHONE").toString() + "\n"
+                                                  "PRESENCE=" + qry.value("PRESENCE").toString();
+
+
+    }
+
+
+    //QR CODE
+    using namespace qrcodegen;
+    // Create the QR Code object
+    QrCode qr = QrCode::encodeText( qrCodeData.toUtf8().data(), QrCode::Ecc::MEDIUM );
+    // Obtenir la taille du QR Code
+    qint32 sz = qr.getSize();
+    // Créer une image avec la taille du QR Code
+    QImage im(sz,sz, QImage::Format_RGB32);
+
+    QRgb black = qRgb(  0,  0,  0);
+    QRgb white = qRgb(255,255,255);
+    for (int y = 0; y < sz; y++)
+        for (int x = 0; x < sz; x++)
+            im.setPixel(x,y,qr.getModule(x, y) ? black : white );
+    // Afficher l'image du QR Code dans un QLabel
+    ui->qrCodeLabel->setPixmap( QPixmap::fromImage(im.scaled(150,150,Qt::KeepAspectRatio,Qt::FastTransformation),Qt::MonoOnly) );
+}
+
+void MainWindow::on_btnReinitialiser_4_clicked()
+{
+    ui->tableViewAppareils_4->setModel(emp.trier("NOM"));
+    QMessageBox::information(this, "Tri", "Tri par nom effectué avec succès.");
+}
+
+void MainWindow::on_btnRechercher_4_clicked()
+{
+    QString nomRecherche = getRechercheText();
+
+    if (nomRecherche.isEmpty()) {
+        QMessageBox::warning(this, "Recherche", "Veuillez entrer un nom à rechercher.");
+        setRechercheFocus();
+        return;
+    }
+
+    QRegularExpression nameRegex("^[a-zA-ZÀ-ÿ\\s\\-']+$");
+    if (!nameRegex.match(nomRecherche).hasMatch()) {
+        QMessageBox::warning(this, "Recherche", "Le nom recherché ne doit contenir que des lettres.");
+        setRechercheFocus();
+        return;
+    }
+
+    ui->tableViewAppareils_4->setModel(emp.rechercherEmploye(nomRecherche));
+
+    QSqlQueryModel *model = emp.rechercherEmploye(nomRecherche);
+    if (model->rowCount() == 0) {
+        QMessageBox::information(this, "Recherche", "Aucun employé trouvé avec le nom: '" + nomRecherche + "'");
+    } else {
+        QMessageBox::information(this, "Recherche",
+                                 QString("%1 employé(s) trouvé(s) avec le nom: '%2'")
+                                     .arg(model->rowCount())
+                                     .arg(nomRecherche));
+    }
+}
+
+QString MainWindow::generatePdf()
+{
+    QString fileName = QDir::tempPath() + "/liste_employes_" + QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss") + ".pdf";
+
+    QString strStream;
+    QTextStream out(&strStream);
+
+    const int rowCount = ui->tableViewAppareils_4->model()->rowCount();
+    const int columnCount = ui->tableViewAppareils_4->model()->columnCount();
+
+    out << "<html>\n"
+        << "<head>\n"
+        << "<meta charset='utf-8'>\n"
+        << QString("<title>%1</title>\n").arg("Liste des Employés")
+        << "<style>"
+        << "body { font-family: Arial, sans-serif; }"
+        << "h1 { color: #2c3147; text-align: center; }"
+        << "table { width: 100%; border-collapse: collapse; margin: 20px 0; }"
+        << "th { background-color: #4CAF50; color: white; padding: 12px; text-align: left; }"
+        << "td { padding: 10px; border: 1px solid #ddd; }"
+        << "tr:nth-child(even) { background-color: #f2f2f2; }"
+        << "</style>"
+        << "</head>\n"
+        << "<body>\n"
+        << "<h1>Liste des Employés</h1>\n"
+        << "<p><strong>Date de génération:</strong> " << QDateTime::currentDateTime().toString("dd/MM/yyyy hh:mm:ss") << "</p>\n"
+        << "<p><strong>Nombre d'employés:</strong> " << rowCount << "</p>\n"
+        << "<table border='1' cellspacing='0' cellpadding='5'>\n";
+
+    out << "<thead><tr>";
+    for (int column = 0; column < columnCount; ++column) {
+        if (!ui->tableViewAppareils_4->isColumnHidden(column)) {
+            out << QString("<th>%1</th>").arg(ui->tableViewAppareils_4->model()->headerData(column, Qt::Horizontal).toString());
+        }
+    }
+    out << "</tr></thead>\n<tbody>";
+
+    for (int row = 0; row < rowCount; ++row) {
+        out << "<tr>";
+        for (int column = 0; column < columnCount; ++column) {
+            if (!ui->tableViewAppareils_4->isColumnHidden(column)) {
+                QString data = ui->tableViewAppareils_4->model()->data(ui->tableViewAppareils_4->model()->index(row, column)).toString().simplified();
+                out << QString("<td>%1</td>").arg(data.isEmpty() ? "&nbsp;" : data);
+            }
+        }
+        out << "</tr>\n";
+    }
+
+    out << "</tbody></table>\n"
+        << "</body>\n"
+        << "</html>\n";
+
+    QPrinter printer(QPrinter::HighResolution);
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    printer.setOutputFileName(fileName);
+
+    QTextDocument doc;
+    doc.setHtml(strStream);
+    doc.print(&printer);
+
+    m_lastPdfPath = fileName;
+    return fileName;
+}
+
+void MainWindow::on_btnExporterPDF_4_clicked()
+{
+    QString fileName = QFileDialog::getSaveFileName(this,
+                                                    "Choisir le nom du fichier PDF",
+                                                    QDir::homePath() + "/liste_employes.pdf",
+                                                    "Fichiers PDF (*.pdf)");
+
+    if (fileName.isEmpty()) return;
+
+    if (QFileInfo(fileName).suffix().isEmpty()) fileName.append(".pdf");
+
+    QString pdfPath = generatePdf();
+
+    // Copier le PDF généré vers l'emplacement choisi par l'utilisateur
+    QFile::copy(pdfPath, fileName);
+
+    QMessageBox::information(this, "Export PDF", "PDF exporté avec succès !\n" + fileName);
+}
+
+void MainWindow::on_btnGenererStats_4_clicked()
+{
+    Employe e;
+    e.afficherDiagramme_Emp_Stat();
+}
+
+void MainWindow::on_btnAjouter_5_clicked()
+{
+    if (ui->email->text().isEmpty()) {
+        QMessageBox::warning(this, "Envoi d'email", "Veuillez sélectionner un employé avec un email valide.");
+        return;
+    }
+
+    QString sujet = ui->aaaz_2->text().trimmed();
+    QString message = ui->aaaz_3->text().trimmed();
+    QString emailDestinataire = ui->email->text();
+
+    if (sujet.isEmpty() || message.isEmpty()) {
+        QMessageBox::warning(this, "Envoi d'email", "Veuillez remplir le sujet et le message.");
+        return;
+    }
+
+    if (!m_mailingService) {
+        QMessageBox::critical(this, "Erreur", "Service d'email non initialisé.");
+        return;
+    }
+
+    bool success = m_mailingService->sendCustomEmail(emailDestinataire, sujet, message);
+
+    if (success) {
+        QMessageBox::information(this, "Email", "Email en cours d'envoi à " + ui->nom->text());
+        ui->aaaz_2->clear();
+        ui->aaaz_3->clear();
+    } else {
+        QMessageBox::warning(this, "Email", "Erreur lors de la préparation de l'envoi.");
+    }
+}
+
+void MainWindow::on_btnAjouter_6_clicked()
+{
+    showConfigurationDialog();
+}
+
+void MainWindow::showConfigurationDialog()
+{
+    bool ok;
+    QString accountSid = QInputDialog::getText(this, "Configuration Twilio",
+                                               "Account SID:",
+                                               QLineEdit::Normal,
+                                               "AC803507060566000080eC7c336ce64k4", &ok);
+
+    if (ok && !accountSid.isEmpty()) {
+        QString authToken = QInputDialog::getText(this, "Configuration Twilio",
+                                                  "Auth Token:",
+                                                  QLineEdit::Password,
+                                                  "ac530584992624a0c228546070kaae8", &ok);
+
+        if (ok && !authToken.isEmpty()) {
+            QString fromEmail = QInputDialog::getText(this, "Configuration Twilio",
+                                                      "Email d'envoi:",
+                                                      QLineEdit::Normal,
+                                                      "rh@votre-entreprise.com", &ok);
+
+            if (ok && !fromEmail.isEmpty()) {
+                if (m_mailingService) {
+                    m_mailingService->setTwilioCredentials(accountSid, authToken, fromEmail);
+                    QMessageBox::information(this, "Configuration", "Configuration Twilio mise à jour avec succès!");
+                }
+            }
         }
     }
 }
 
-void MainWindow::on_btnRafraichir_clicked()
+void MainWindow::on_btnSendRealEmail_clicked()
 {
-    chargerDonnees();
-    viderChamps();
+    if (ui->email->text().isEmpty()) {
+        QMessageBox::warning(this, "Envoi d'email", "Veuillez sélectionner un employé avec un email valide.");
+        return;
+    }
+
+    QString toEmail = ui->email->text();
+    QString sujet = ui->aaaz_2->text().trimmed();
+    QString message = ui->aaaz_3->text().trimmed();
+
+    if (sujet.isEmpty() || message.isEmpty()) {
+        QMessageBox::warning(this, "Envoi d'email", "Veuillez remplir le sujet et le message.");
+        return;
+    }
+
+    // Créer un lien Gmail pré-rempli
+    QString gmailUrl = QString("https://mail.google.com/mail/?view=cm&fs=1&to=%1&su=%2&body=%3")
+                           .arg(toEmail)
+                           .arg(QUrl::toPercentEncoding(sujet))
+                           .arg(QUrl::toPercentEncoding(message));
+
+    // Ouvrir Gmail dans le navigateur
+    QDesktopServices::openUrl(QUrl(gmailUrl));
+
+    QMessageBox::information(this, "Email",
+                             "Gmail s'ouvre dans votre navigateur avec l'email pré-rempli.\n\n"
+                             "Destinataire: " + toEmail + "\n" +
+                                 "Sujet: " + sujet + "\n" +
+                                 "Message: " + message);
 }
 
-void MainWindow::on_tableView_clicked(const QModelIndex &index)
+void MainWindow::on_btnSendPdfEmail_clicked()
 {
-    int row = index.row();
+    bool ok;
+    QString toEmail = QInputDialog::getText(this, "Envoyer PDF par Email",
+                                            "Email du destinataire:",
+                                            QLineEdit::Normal,
+                                            "", &ok);
 
-    ui->lineEditId->setText(model->data(model->index(row, 0)).toString());
-    ui->lineEditMarque_3->setText(model->data(model->index(row, 1)).toString());
-    ui->lineEditMarque->setText(model->data(model->index(row, 2)).toString());
-    ui->lineEditModele->setText(model->data(model->index(row, 3)).toString());
-    ui->lineEditNumeroSerie->setText(model->data(model->index(row, 4)).toString());
+    if (!ok || toEmail.isEmpty()) return;
 
-    ui->lineEditId->setReadOnly(true);
+    // Vérifier le format de l'email
+    QRegularExpression emailRegex("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    if (!emailRegex.match(toEmail).hasMatch()) {
+        QMessageBox::warning(this, "Email invalide", "Veuillez entrer une adresse email valide.");
+        return;
+    }
+
+    QString sujet = "Liste des Employés - " + QDateTime::currentDateTime().toString("dd/MM/yyyy");
+    QString message = "Bonjour,\n\nVeuillez trouver ci-joint la liste des employés au format PDF.\n\nCordialement,\nService RH";
+
+    // Générer le PDF
+    QString pdfPath = generatePdf();
+
+    if (!m_mailingService) {
+        QMessageBox::critical(this, "Erreur", "Service d'email non initialisé.");
+        return;
+    }
+
+    bool success = m_mailingService->sendPdfByEmail(toEmail, sujet, message, pdfPath);
+
+    if (success) {
+        QMessageBox::information(this, "Email PDF", "PDF en cours d'envoi à " + toEmail);
+    } else {
+        QMessageBox::warning(this, "Email PDF", "Erreur lors de l'envoi du PDF.");
+    }
 }
 
-void MainWindow::on_tableViewAppareils_clicked(const QModelIndex &index)
+void MainWindow::onEmailSent(bool success, const QString& message)
 {
-    int row = index.row();
-
-    ui->lineEditId->setText(model->data(model->index(row, 0)).toString());
-    ui->lineEditMarque_3->setText(model->data(model->index(row, 1)).toString());
-    ui->lineEditMarque->setText(model->data(model->index(row, 2)).toString());
-    ui->lineEditModele->setText(model->data(model->index(row, 3)).toString());
-    ui->lineEditNumeroSerie->setText(model->data(model->index(row, 4)).toString());
-
-    ui->lineEditId->setReadOnly(true);
+    if (success) {
+        QMessageBox::information(this, "Email", message);
+    } else {
+        QMessageBox::critical(this, "Erreur Email", message);
+    }
 }

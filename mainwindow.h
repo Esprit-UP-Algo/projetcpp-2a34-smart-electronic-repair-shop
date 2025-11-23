@@ -2,12 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QSqlDatabase>
-#include <QSqlTableModel>
-#include <QRegularExpression>
-#include <QToolTip>
-#include <QPoint>
-#include "empolye.h"
+#include "employe.h"
+
+class MailingService;
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -24,29 +21,35 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_btnAjouter_clicked();
-    void on_btnModifier_clicked();
-    void on_btnSupprimer_clicked();
-    void on_btnRafraichir_clicked();
-    void on_tableView_clicked(const QModelIndex &index);
-    void on_tableViewAppareils_clicked(const QModelIndex &index);
+    void on_btnAjouter_4_clicked();
+    void on_btnModifier_4_clicked();
+    void on_btnSupprimer_4_clicked();
+    void on_tableViewAppareils_4_clicked(const QModelIndex &index);
+    void on_btnRechercher_4_clicked();
+    void on_btnReinitialiser_4_clicked();
+    void on_btnExporterPDF_4_clicked();
+    void on_btnGenererStats_4_clicked();
 
-    // Slots pour validation en temps réel
-    void validerCIN();
-    void validerNom();
-    void validerPrenom();
-    void validerTelephone();
-    void validerEmail();
+    void on_btnAjouter_5_clicked();
+    void on_btnAjouter_6_clicked();
+    void on_btnSendRealEmail_clicked();
+    void on_btnSendPdfEmail_clicked();  // AJOUTEZ CETTE LIGNE
+    void onEmailSent(bool success, const QString& message);
 
 private:
-    Ui::MainWindow *ui;
-    QSqlDatabase db;
-    QSqlTableModel *model;
+    void setupValidators();
+    void setupRechercheField();
+    void setupMailingService();
+    bool validateFields();
+    QString getRechercheText();
+    void setRechercheFocus();
+    void showConfigurationDialog();
+    QString generatePdf();
 
-    void setupDatabase();
-    void chargerDonnees();
-    void viderChamps();
-    bool validerDonnees(QString cin, QString nom, QString prenom, QString numTel, QString email);
+    Employe emp;
+    MailingService *m_mailingService;
+    Ui::MainWindow *ui;
+    QString m_lastPdfPath;
 };
 
 #endif // MAINWINDOW_H

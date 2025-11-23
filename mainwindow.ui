@@ -6,15 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1398</width>
-    <height>828</height>
+    <width>1453</width>
+    <height>831</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
-  </property>
-  <property name="windowOpacity">
-   <double>1.000000000000000</double>
   </property>
   <property name="styleSheet">
    <string notr="true">QWidget {
@@ -114,457 +111,596 @@ QHeaderView::section {
     padding: 4px;
     border: 1px solid #CCCCCC;
 }
-
-
-
-
-
-
-
-
 </string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="label_5">
+   <widget class="QFrame" name="frame">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>300</y>
-      <width>101</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
-   <widget class="QTabWidget" name="tabWidget">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>90</y>
-      <width>1182</width>
-      <height>679</height>
+      <x>20</x>
+      <y>100</y>
+      <width>1321</width>
+      <height>711</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">QTabWidget::pane {
-    border: 2px solid #2c3147;
-    border-radius: 8px;
-    background-color: #2c3147;
+     <string notr="true">font: 700 15pt &quot;Bahnschrift&quot;;
+margin: 0px;
+background-color: #2c3147;
+font: 700 15pt &quot;Bahnschrift&quot;;
+margin: 0px;
+background-color: #2c3147;</string>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Shape::StyledPanel</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Shadow::Raised</enum>
+    </property>
+    <widget class="QLabel" name="label_4">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>0</y>
+       <width>101</width>
+       <height>51</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>cin</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_7">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>40</y>
+       <width>51</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>nom </string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_8">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>60</y>
+       <width>81</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>prenom</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_9">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>130</y>
+       <width>49</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>email</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_10">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>100</y>
+       <width>81</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>num tlf</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="id">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>10</y>
+       <width>231</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);
+color: black;
+border-color: rgb(0, 0, 0);</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="prenom">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>70</y>
+       <width>231</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);
+color: black;
+border-color: rgb(0, 0, 0);</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="nom">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>40</y>
+       <width>231</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);
+color: black;
+border-color: rgb(0, 0, 0);</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="email">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>130</y>
+       <width>231</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);
+color: black;
+border-color: rgb(0, 0, 0);</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="tlf">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>100</y>
+       <width>231</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);
+color: black;
+border-color: rgb(0, 0, 0);</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnAjouter_4">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>210</y>
+       <width>121</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #28A745;
+font: 900 12pt &quot;Swis721 BlkCn BT&quot;;
+color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string>Ajouter</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnModifier_4">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>210</y>
+       <width>79</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #007BFF;
+color: rgb(255, 255, 255);
+font: 900 12pt &quot;Swis721 BlkCn BT&quot;;</string>
+     </property>
+     <property name="text">
+      <string>Modifier</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnSupprimer_4">
+     <property name="geometry">
+      <rect>
+       <x>270</x>
+       <y>210</y>
+       <width>127</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #DC3545;
+font: 900 12pt &quot;Swis721 BlkCn BT&quot;;
+color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string>Supprimer</string>
+     </property>
+    </widget>
+    <widget class="QTableView" name="tableViewAppareils_4">
+     <property name="geometry">
+      <rect>
+       <x>430</x>
+       <y>65</y>
+       <width>881</width>
+       <height>491</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">/* Style général de la table */
+QTableView {
+    background-color: #f0f0f0;  /* couleur de fond */
+    gridline-color: #dcdcdc;    /* couleur des lignes */
+    font: 12pt &quot;Segoe UI&quot;;      /* police et taille */
+    border: 1px solid #ccc;     /* bordure globale */
+    selection-background-color: #3399ff;  /* couleur de sélection */
+    selection-color: white;     /* couleur du texte sélectionné */
 }
-QTabBar::tab {
-    background-color: #e9ecef;
-    color: #6C757D;
-    padding: 10px 20px;
-    margin-right: 2px;
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
-    font-family: 'Montserrat Bold';
+
+/* Style des en-têtes horizontaux */
+QHeaderView::section {
+    background-color: #4CAF50;  /* couleur de fond */
+    color: white;               /* texte blanc */
+    padding: 4px;
+    border: 1px solid #ddd;     /* bordure des sections */
 }
-QTabBar::tab:selected {
-    background-color: #35b95f;
+
+/* Style des en-têtes verticaux */
+QHeaderView::section:vertical {
+    background-color: #f7f7f7;
+    color: black;
+    border: 1px solid #ddd;
+}
+
+/* Ligne survolée */
+QTableView::item:hover {
+    background-color: #e0f7fa;
+}
+
+/* Ligne sélectionnée */
+QTableView::item:selected {
+    background-color: #3399ff;
     color: white;
 }
-QTabBar::tab:hover {
-    background-color: #d0d0d0;
-}</string>
-    </property>
-    <property name="currentIndex">
-     <number>0</number>
-    </property>
-    <widget class="QWidget" name="tabGestion">
-     <property name="styleSheet">
-      <string notr="true">background-color: rgb(44, 49, 71);</string>
+</string>
      </property>
-     <attribute name="title">
-      <string>Gestion d'empolye</string>
-     </attribute>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QGroupBox" name="groupBoxFormulaire">
-        <property name="minimumSize">
-         <size>
-          <width>350</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">font: 700 16pt &quot;Bahnschrift&quot;;
-color: rgb(53, 185, 95);
-border-color: rgb(53, 185, 95);
-background-color: #2c3147;</string>
-        </property>
-        <property name="title">
-         <string>Formulaire Appareil</string>
-        </property>
-        <layout class="QFormLayout" name="formLayout">
-         <item row="0" column="0">
-          <widget class="QLabel" name="labelId">
-           <property name="styleSheet">
-            <string notr="true">font: 14pt &quot;Bauhaus 93&quot;;
-color: rgb(255, 255, 255);</string>
-           </property>
-           <property name="text">
-            <string>cin</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="labelType">
-           <property name="styleSheet">
-            <string notr="true">font: 14pt &quot;Bauhaus 93&quot;;
-color: rgb(255, 255, 255);</string>
-           </property>
-           <property name="text">
-            <string>nom</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="labelMarque">
-           <property name="styleSheet">
-            <string notr="true">font: 14pt &quot;Bauhaus 93&quot;;
-color: rgb(255, 255, 255);</string>
-           </property>
-           <property name="text">
-            <string>prenom</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QLineEdit" name="lineEditMarque">
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(255, 255, 255);
-color: black;
-border-color: rgb(0, 0, 0);</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="labelModele">
-           <property name="styleSheet">
-            <string notr="true">font: 14pt &quot;Bauhaus 93&quot;;
-color: rgb(255, 255, 255);</string>
-           </property>
-           <property name="text">
-            <string>num de tel</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QLineEdit" name="lineEditModele">
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(255, 255, 255);
-color: black;
-border-color: rgb(0, 0, 0);</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="labelNumeroSerie">
-           <property name="styleSheet">
-            <string notr="true">font: 14pt &quot;Bauhaus 93&quot;;
-color: rgb(255, 255, 255);</string>
-           </property>
-           <property name="text">
-            <string>email</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="1">
-          <widget class="QLineEdit" name="lineEditNumeroSerie">
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(255, 255, 255);
-color: black;
-border-color: rgb(0, 0, 0);</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0" colspan="2">
-          <layout class="QHBoxLayout" name="horizontalLayoutButtons">
-           <item>
-            <widget class="QPushButton" name="btnAjouter">
-             <property name="styleSheet">
-              <string notr="true">background-color: #28A745;
-font: 900 12pt &quot;Swis721 BlkCn BT&quot;;
-color: rgb(255, 255, 255);</string>
-             </property>
-             <property name="text">
-              <string>Ajouter</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="btnModifier">
-             <property name="styleSheet">
-              <string notr="true">background-color: #007BFF;
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+     </property>
+     <property name="sortingEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnExporterPDF_4">
+     <property name="geometry">
+      <rect>
+       <x>908</x>
+       <y>570</y>
+       <width>311</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #DC3545;
 color: rgb(255, 255, 255);
 font: 900 12pt &quot;Swis721 BlkCn BT&quot;;</string>
-             </property>
-             <property name="text">
-              <string>Modifier</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="btnSupprimer">
-             <property name="styleSheet">
-              <string notr="true">background-color: #DC3545;
-font: 900 12pt &quot;Swis721 BlkCn BT&quot;;
-color: rgb(255, 255, 255);</string>
-             </property>
-             <property name="text">
-              <string>Supprimer</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item row="6" column="0" colspan="2">
-          <layout class="QHBoxLayout" name="horizontalLayoutQR"/>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="lineEditMarque_3">
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(255, 255, 255);
-color: black;
-border-color: rgb(0, 0, 0);</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="lineEditId">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(255, 255, 255);
-border-color: rgb(0, 0, 0);
-color: black;</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QGroupBox" name="groupBoxListe">
-        <property name="styleSheet">
-         <string notr="true">font: 700 16pt &quot;Bahnschrift&quot;;
-color: rgb(53, 185, 95);
-border-color: #35b95f;
-background-color: #2c3147;</string>
-        </property>
-        <property name="title">
-         <string>Liste des Appareils</string>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayoutRecherche">
-           <item>
-            <widget class="QLabel" name="labelRecherche">
-             <property name="styleSheet">
-              <string notr="true">font: 14pt &quot;Bauhaus 93&quot;;
-color: rgb(255, 255, 255);</string>
-             </property>
-             <property name="text">
-              <string>Rechercher par:</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QComboBox" name="comboBoxCritere">
-             <property name="styleSheet">
-              <string notr="true">font: 9pt &quot;Segoe UI&quot;;
-background-color: rgb(255, 255, 255);
-color: black;</string>
-             </property>
-             <item>
-              <property name="text">
-               <string>nom</string>
-              </property>
-             </item>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="btnRechercher">
-             <property name="styleSheet">
-              <string notr="true">font: 900 12pt &quot;Swis721 BlkCn BT&quot;;
+     </property>
+     <property name="text">
+      <string>Exporter PDF</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnRechercher_4">
+     <property name="geometry">
+      <rect>
+       <x>900</x>
+       <y>20</y>
+       <width>215</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 900 12pt &quot;Swis721 BlkCn BT&quot;;
 background-color: #007BFF;
 color: white;</string>
-             </property>
-             <property name="text">
-              <string>Rechercher</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="btnReinitialiser">
-             <property name="styleSheet">
-              <string notr="true">background-color: #6C757D;
-color: rgb(255, 255, 255);
-font: 900 12pt &quot;Swis721 BlkCn BT&quot;;</string>
-             </property>
-             <property name="text">
-              <string>tri par nom</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="QTableView" name="tableViewAppareils">
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(255, 255, 255);</string>
-           </property>
-           <property name="selectionMode">
-            <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
-           </property>
-           <property name="selectionBehavior">
-            <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
-           </property>
-           <property name="sortingEnabled">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayoutExport">
-           <item>
-            <widget class="QPushButton" name="btnExporterPDF">
-             <property name="styleSheet">
-              <string notr="true">background-color: #DC3545;
-color: rgb(255, 255, 255);
-font: 900 12pt &quot;Swis721 BlkCn BT&quot;;</string>
-             </property>
-             <property name="text">
-              <string>Exporter PDF</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="tabStatistiques">
-     <property name="styleSheet">
-      <string notr="true">background-color: rgb(44, 49, 71);</string>
      </property>
-     <attribute name="title">
-      <string>Statistiques</string>
-     </attribute>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <item>
-       <widget class="QGroupBox" name="groupBoxStats">
-        <property name="styleSheet">
-         <string notr="true">border-color: rgb(53, 185, 95);
-color: rgb(53, 185, 95);
-font: 700 16pt &quot;Bahnschrift&quot;;
+     <property name="text">
+      <string>Rechercher</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="presence">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>160</y>
+       <width>231</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);
+color: black;
+border-color: rgb(0, 0, 0);</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_11">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>160</y>
+       <width>91</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>presence</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnReinitialiser_4">
+     <property name="geometry">
+      <rect>
+       <x>1120</x>
+       <y>20</y>
+       <width>191</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #6C757D;
+color: rgb(255, 255, 255);
+font: 900 12pt &quot;Swis721 BlkCn BT&quot;;</string>
+     </property>
+     <property name="text">
+      <string>tri par nom</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="labelRecherche_4">
+     <property name="geometry">
+      <rect>
+       <x>510</x>
+       <y>10</y>
+       <width>141</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 14pt &quot;Bauhaus 93&quot;;
+color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string>Rechercher par:</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnGenererStats_4">
+     <property name="geometry">
+      <rect>
+       <x>520</x>
+       <y>570</y>
+       <width>311</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #DC3545;
+font: 900 12pt &quot;Swis721 BlkCn BT&quot;;
+color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string>Générer Statistiques</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="aaaz">
+     <property name="geometry">
+      <rect>
+       <x>650</x>
+       <y>20</y>
+       <width>241</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);
+color: black;
+border-color: rgb(0, 0, 0);</string>
+     </property>
+    </widget>
+    <widget class="QTableView" name="tableViewAppareils_5">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>430</y>
+       <width>421</width>
+       <height>241</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">font: 700 15pt &quot;Bahnschrift&quot;;
+margin: 0px;
+background-color: #2c3147;
+font: 700 15pt &quot;Bahnschrift&quot;;
+margin: 0px;
+background-color: #2c3147;
+/* Style général de la table */
+QTableView {
+    background-color: #f0f0f0;  /* couleur de fond */
+    gridline-color: #dcdcdc;    /* couleur des lignes */
+    font: 12pt &quot;Segoe UI&quot;;      /* police et taille */
+    border: 1px solid #ccc;     /* bordure globale */
+    selection-background-color: #3399ff;  /* couleur de sélection */
+    selection-color: white;     /* couleur du texte sélectionné */
+}
+
+/* Style des en-têtes horizontaux */
+QHeaderView::section {
+    background-color: #4CAF50;  /* couleur de fond */
+    color: white;               /* texte blanc */
+    padding: 4px;
+    border: 1px solid #ddd;     /* bordure des sections */
+}
+
+/* Style des en-têtes verticaux */
+QHeaderView::section:vertical {
+    background-color: #f7f7f7;
+    color: black;
+    border: 1px solid #ddd;
+}
+
+/* Ligne survolée */
+QTableView::item:hover {
+    background-color: #e0f7fa;
+}
+
+/* Ligne sélectionnée */
+QTableView::item:selected {
+    background-color: #3399ff;
+    color: white;
+}
+font: 700 40pt &quot;Bahnschrift&quot;;
+color: #35b95f;
+margin: 0px;
+background-color: #2c3147;
 </string>
-        </property>
-        <property name="title">
-         <string>Statistiques des Appareils</string>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <item>
-          <widget class="QFrame" name="frameGraphique">
-           <property name="frameShape">
-            <enum>QFrame::Shape::StyledPanel</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Shadow::Raised</enum>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_4">
-            <item>
-             <widget class="QWidget" name="widgetGraphique" native="true">
-              <property name="minimumSize">
-               <size>
-                <width>400</width>
-                <height>300</height>
-               </size>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">background-color: white;
-border: 1px solid #6C757D;
-border-radius: 4px;</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="labelGraphTitle">
-              <property name="styleSheet">
-               <string notr="true">font-family: 'Montserrat Bold';
-font-size: 16px;
-color: #007BFF;
-margin: 10px;</string>
-              </property>
-              <property name="text">
-               <string/>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-         <item>
-          <widget class="QFrame" name="frameDetails">
-           <property name="frameShape">
-            <enum>QFrame::Shape::StyledPanel</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Shadow::Raised</enum>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_5">
-            <item>
-             <widget class="QLabel" name="labelDetailsTitle">
-              <property name="styleSheet">
-               <string notr="true">font-family: 'Montserrat Bold';
-font-size: 16px;
-color: #007BFF;
-margin: 10px;</string>
-              </property>
-              <property name="text">
-               <string>Détails statistiques</string>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignmentFlag::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QTextEdit" name="textEditStats">
-              <property name="styleSheet">
-               <string notr="true">background-color: white;
-border: 1px solid #6C757D;
-border-radius: 4px;
-padding: 10px;</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="btnGenererStats">
-              <property name="text">
-               <string>Générer Statistiques</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-     </layout>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
+     </property>
+     <property name="sortingEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="aaaz_2">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>450</y>
+       <width>241</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);
+color: black;
+border-color: rgb(0, 0, 0);</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="aaaz_3">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>500</y>
+       <width>241</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);
+color: black;
+border-color: rgb(0, 0, 0);</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnAjouter_5">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>570</y>
+       <width>121</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #28A745;
+font: 900 12pt &quot;Swis721 BlkCn BT&quot;;
+color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string>envoye</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnAjouter_6">
+     <property name="geometry">
+      <rect>
+       <x>240</x>
+       <y>570</y>
+       <width>121</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #28A745;
+font: 900 12pt &quot;Swis721 BlkCn BT&quot;;
+color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string>configuration</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnSendRealEmail">
+     <property name="geometry">
+      <rect>
+       <x>150</x>
+       <y>530</y>
+       <width>121</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #28A745;
+font: 900 12pt &quot;Swis721 BlkCn BT&quot;;
+color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string>configuration</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnSendPdfEmail">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>610</y>
+       <width>161</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: #28A745;
+font: 900 12pt &quot;Swis721 BlkCn BT&quot;;
+color: rgb(255, 255, 255);</string>
+     </property>
+     <property name="text">
+      <string>configuration pdf</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="qrCodeLabel">
+     <property name="geometry">
+      <rect>
+       <x>100</x>
+       <y>270</y>
+       <width>221</width>
+       <height>151</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
     </widget>
    </widget>
    <widget class="QLabel" name="labelTitle">
@@ -572,8 +708,8 @@ padding: 10px;</string>
      <rect>
       <x>40</x>
       <y>0</y>
-      <width>1181</width>
-      <height>80</height>
+      <width>1301</width>
+      <height>71</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -595,7 +731,7 @@ background-color: #2c3147;</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1398</width>
+     <width>1453</width>
      <height>21</height>
     </rect>
    </property>
