@@ -196,7 +196,7 @@ QTabBar::tab:hover {
 }</string>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="tabDashboard">
        <attribute name="title">
@@ -1468,6 +1468,15 @@ color: black;</string>
               </widget>
              </item>
              <item>
+              <widget class="QLineEdit" name="lineEdit_5">
+               <property name="styleSheet">
+                <string notr="true">font: 9pt &quot;Segoe UI&quot;;
+background-color: rgb(255, 255, 255);
+color: black;</string>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QPushButton" name="btnRechercherAppareil">
                <property name="styleSheet">
                 <string notr="true">font: 900 12pt &quot;Swis721 BlkCn BT&quot;;
@@ -2289,7 +2298,7 @@ border-radius: 8px;</string>
      <x>0</x>
      <y>0</y>
      <width>1407</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFichier">
