@@ -2,6 +2,7 @@
 #include <QMessageBox>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
+#include <QSqlError>
 
 Appareils::Appareils() {}
 
@@ -154,14 +155,66 @@ bool Appareils::modifier(int numSerie)
     return query.exec();
 }
 
-QSqlQueryModel* Appareils::rechercher(QString valeur)
+QSqlQueryModel* Appareils::rechercher(const QString& valeur, const QString& typeRecherche)
 {
     QSqlQueryModel* model = new QSqlQueryModel();
     QSqlQuery query;
-    query.prepare("SELECT * FROM APPAREILLES WHERE NUM_SERIE LIKE :valeur OR MARQUE LIKE :valeur");
-    query.bindValue(":valeur", "%" + valeur + "%");
-    query.exec();
-
+    
+    qDebug() << "Début de la recherche avec type:" << typeRecherche << "et valeur:" << valeur;
+    
+    // Construction de la requête de base
+    QString requete = "SELECT NUM_SERIE, TYPE, MARQUE, MODELE, DATE_ACQ, ETAT, CIN_CLIENT FROM APPAREILLES WHERE ";
+    
+    if (typeRecherche == "Numéro Série") {
+        qDebug() << "Recherche par numéro de série";
+        requete += "NUM_SERIE = :valeur";
+        query.prepare(requete);
+        query.bindValue(":valeur", valeur.toInt()); // Conversion en entier pour la recherche exacte
+    } else if (typeRecherche == "Marque") {
+        qDebug() << "Recherche par marque";
+        requete += "UPPER(MARQUE) LIKE UPPER(:valeur)";
+        query.prepare(requete);
+        query.bindValue(":valeur", "%" + valeur + "%");
+    } else if (typeRecherche == "Modèle") {
+        qDebug() << "Recherche par modèle";
+        requete += "UPPER(MODELE) LIKE UPPER(:valeur)";
+        query.prepare(requete);
+        query.bindValue(":valeur", "%" + valeur + "%");
+    } else {
+        qDebug() << "Recherche par défaut (tous les champs)";
+        requete += "(NUM_SERIE = :valeur1 OR UPPER(MARQUE) LIKE UPPER(:valeur2) OR UPPER(MODELE) LIKE UPPER(:valeur3))";
+        query.prepare(requete);
+        query.bindValue(":valeur1", valeur.toInt()); // Conversion en entier pour la recherche exacte
+        query.bindValue(":valeur2", "%" + valeur + "%");
+        query.bindValue(":valeur3", "%" + valeur + "%");
+    }
+    
+    qDebug() << "Exécution de la requête:" << query.lastQuery();
+    qDebug() << "Valeurs liées:" << query.boundValues();
+    
+    bool success = query.exec();
+    
+    if (!success) {
+        qDebug() << "Erreur lors de l'exécution de la requête:" << query.lastError().text();
+        qDebug() << "Dernière requête SQL:" << query.lastQuery();
+        return model;
+    }
+    
+    qDebug() << "Requête exécutée avec succès. Nombre de résultats:" << query.size();
+    
+    // Création du modèle avec les résultats
     model->setQuery(query);
+    
+    // Définition des en-têtes de colonnes pour correspondre à la méthode afficher()
+    model->setHeaderData(0, Qt::Horizontal, QObject::tr("Numéro Série"));
+    model->setHeaderData(1, Qt::Horizontal, QObject::tr("Type"));
+    model->setHeaderData(2, Qt::Horizontal, QObject::tr("Marque"));
+    model->setHeaderData(3, Qt::Horizontal, QObject::tr("Modèle"));
+    model->setHeaderData(4, Qt::Horizontal, QObject::tr("Date Acquisition"));
+    model->setHeaderData(5, Qt::Horizontal, QObject::tr("État"));
+    model->setHeaderData(6, Qt::Horizontal, QObject::tr("CIN Client"));
+    
+    qDebug() << "Modèle créé avec" << model->rowCount() << "lignes";
+    
     return model;
 }

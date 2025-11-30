@@ -1,5 +1,6 @@
 #include "reparations.h"
 #include <QMessageBox>
+#include <QSqlError>
 
 Reparations::Reparations() {}
 
@@ -153,16 +154,25 @@ QSqlQueryModel* Reparations::rechercher(QString critere, QString valeur)
     QSqlQuery query;
     query.prepare(requete);
     query.bindValue(":valeur", "%" + valeur + "%");
-    query.exec();
+    
+    if (!query.exec()) {
+        qDebug() << "Erreur lors de l'exécution de la requête:" << query.lastError().text();
+        return model;
+    }
 
-    model->setQuery(query);
+    model->setQuery(std::move(query));
     return model;
 }
 
 QSqlQueryModel* Reparations::getAppareilsDisponibles()
 {
     QSqlQueryModel* model = new QSqlQueryModel();
-    model->setQuery("SELECT NUM_SERIE, MARQUE, MODELE FROM APPAREILLES");
+    QSqlQuery query("SELECT NUM_SERIE, MARQUE, MODELE FROM APPAREILLES");
+    if (!query.exec()) {
+        qDebug() << "Erreur lors de la récupération des appareils disponibles:" << query.lastError().text();
+        return model;
+    }
+    model->setQuery(std::move(query));
     return model;
 }
 

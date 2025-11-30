@@ -709,7 +709,7 @@ color: rgb(255, 255, 255);
 font: 900 12pt &quot;Swis721 BlkCn BT&quot;;</string>
                </property>
                <property name="text">
-                <string>trier par nom</string>
+                <string>Trier par date</string>
                </property>
               </widget>
              </item>
@@ -758,26 +758,26 @@ color: rgb(255, 255, 255);</string>
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="btnExporterPDFClient">
+              <widget class="QPushButton" name="btnStatistiquesPDFClient">
                <property name="styleSheet">
-                <string notr="true">background-color: #DC3545;
+                <string notr="true">background-color: #6F42C1;
 color: rgb(255, 255, 255);
 font: 900 12pt &quot;Swis721 BlkCn BT&quot;;</string>
                </property>
                <property name="text">
-                <string>Exporter PDF</string>
+                <string>Statistiques PDF</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="btnExporterExcelClient">
+              <widget class="QPushButton" name="btnStatistiquesExcelClient">
                <property name="styleSheet">
-                <string notr="true">background-color: #28A745;
+                <string notr="true">background-color: #17A2B8;
 color: rgb(255, 255, 255);
 font: 900 12pt &quot;Swis721 BlkCn BT&quot;;</string>
                </property>
                <property name="text">
-                <string>Exporter Excel</string>
+                <string>Statistiques Excel</string>
                </property>
               </widget>
              </item>
@@ -1423,6 +1423,18 @@ color: rgb(255, 255, 255);</string>
                </property>
               </widget>
              </item>
+             <item>
+              <widget class="QPushButton" name="btnVieAppareil">
+               <property name="styleSheet">
+                <string notr="true">background-color: #6f42c1;
+font: 900 12pt &quot;Swis721 BlkCn BT&quot;;
+color: rgb(255, 255, 255);</string>
+               </property>
+               <property name="text">
+                <string>Vie d'un appareil</string>
+               </property>
+              </widget>
+             </item>
             </layout>
            </item>
           </layout>
@@ -1496,7 +1508,7 @@ color: rgb(255, 255, 255);
 font: 900 12pt &quot;Swis721 BlkCn BT&quot;;</string>
                </property>
                <property name="text">
-                <string>trier par numero serie</string>
+                <string>Trier par date</string>
                </property>
               </widget>
              </item>
@@ -1545,26 +1557,28 @@ color: rgb(255, 255, 255);</string>
               </spacer>
              </item>
              <item>
-              <widget class="QPushButton" name="btnExporterPDFAppareil">
+              <widget class="QPushButton" name="btnStatistiquesAppareil">
                <property name="styleSheet">
-                <string notr="true">background-color: #DC3545;
+                <string notr="true">background-color: #6F42C1;
 color: rgb(255, 255, 255);
-font: 900 12pt &quot;Swis721 BlkCn BT&quot;;</string>
+font: 900 12pt &quot;Swis721 BlkCn BT&quot;;
+min-width: 120px;</string>
                </property>
                <property name="text">
-                <string>Exporter PDF</string>
+                <string>Statistiques</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="btnExporterExcelAppareil">
+              <widget class="QPushButton" name="btnExportPDFAppareil">
                <property name="styleSheet">
-                <string notr="true">background-color: #28A745;
+                <string notr="true">background-color: #DC3545;
 color: rgb(255, 255, 255);
-font: 900 12pt &quot;Swis721 BlkCn BT&quot;;</string>
+font: 900 12pt &quot;Swis721 BlkCn BT&quot;;
+min-width: 120px;</string>
                </property>
                <property name="text">
-                <string>Exporter Excel</string>
+                <string>Export PDF</string>
                </property>
               </widget>
              </item>

@@ -3,11 +3,17 @@
 #include <QMessageBox>
 #include <QSqlQueryModel>
 #include <QInputDialog>
+#include <QDialog>
+#include <QTableView>
+#include <QStandardItemModel>
+#include <QHeaderView>
+#include <QDialogButtonBox>
 #include <QRegularExpression>
 #include <QIntValidator>
 #include <QDoubleValidator>
 #include <QToolTip>
 #include <QSignalBlocker>
+#include <QSqlError>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -269,8 +275,14 @@ void MainWindow::clearEmployeFields()
     ui->lineEditId->clear();
     ui->lineEditMarque_3->clear();
     ui->lineEditMarque_2->clear();
-    ui->lineEditModele_2->clear();
-    ui->lineEditNumeroSerie_2->clear();
+    // Using the correct widget names from the UI
+    ui->lineEditTelephone->clear();
+    ui->lineEditEmail->clear();
+    ui->lineEditAdresse->clear();
+    // Using the available date edit widget or remove if not needed
+    // ui->dateEditInscription->setDate(QDate::currentDate());
+    // Using the available combo box or remove if not needed
+    // ui->comboBoxType->setCurrentIndex(0);
 }
 
 void MainWindow::clearClientFields()
@@ -487,6 +499,147 @@ void MainWindow::on_tableViewAppareils_2_clicked(const QModelIndex &index)
     ui->lineEditMarque_2->setText(ui->tableViewAppareils_2->model()->index(row, 2).data().toString());
     ui->lineEditModele_2->setText(ui->tableViewAppareils_2->model()->index(row, 3).data().toString());
     ui->lineEditNumeroSerie_2->setText(ui->tableViewAppareils_2->model()->index(row, 4).data().toString());
+}
+
+// ==================== MÉTHODES DE STATISTIQUES ====================
+
+void MainWindow::on_btnStatistiquesAppareil_clicked()
+{
+    // Vérifier la connexion à la base de données
+    QSqlDatabase db = QSqlDatabase::database();
+    if (!db.isOpen()) {
+        QMessageBox::critical(this, "Erreur de connexion", "La base de données n'est pas connectée");
+        return;
+    }
+
+    // Vérifier si la table APPAREILLES existe
+    if (!db.tables().contains("APPAREILLES")) {
+        QMessageBox::critical(this, "Erreur", "La table APPAREILLES n'existe pas dans la base de données");
+        return;
+    }
+
+    // Récupérer les statistiques des appareils par marque
+    QSqlQuery query;
+    if (!query.exec("SELECT MARQUE, COUNT(*) as nombre FROM APPAREILLES GROUP BY MARQUE")) {
+        QMessageBox::critical(this, "Erreur", "Impossible de récupérer les statistiques: " + query.lastError().text());
+        return;
+    }
+
+    // Créer une série de données pour le graphique
+    QPieSeries *series = new QPieSeries();
+    int totalAppareils = 0;
+
+    // Récupérer le nombre total d'appareils
+    QString debugInfo = "Données récupérées :\n";
+    bool hasData = false;
+    
+    if (query.next()) {
+        do {
+            QString marque = query.value(0).toString();
+            int count = query.value(1).toInt();
+            totalAppareils += count;
+            series->append(marque, count);
+            debugInfo += QString("Marque: %1, Nombre: %2\n").arg(marque).arg(count);
+            hasData = true;
+        } while (query.next());
+    }
+    
+    // Afficher les données de débogage
+    qDebug() << debugInfo;
+    
+    if (!hasData) {
+        QMessageBox::information(this, "Information", "Aucune donnée trouvée dans la table APPAREILS.");
+        return;
+    }
+
+    // Si aucun appareil trouvé
+    if (totalAppareils == 0) {
+        QMessageBox::information(this, "Information", "Aucun appareil trouvé dans la base de données.");
+        return;
+    }
+
+    // Mettre à jour les pourcentages et les légendes
+    for (auto slice : series->slices()) {
+        double percentage = (slice->value() / totalAppareils) * 100.0;
+        QString marque = slice->label();
+        
+        // Stocker les informations complètes dans la légende
+        slice->setLabel(QString("%1: %2% (%3)")
+                       .arg(marque)
+                       .arg(percentage, 0, 'f', 1)
+                       .arg(slice->value()));
+        
+        // Afficher uniquement le pourcentage dans la tranche
+        slice->setLabelVisible(true);
+        slice->setLabelPosition(QPieSlice::LabelInsideHorizontal);
+        
+        // Ajuster la police pour les étiquettes
+        QFont font;
+        font.setBold(true);
+        slice->setLabelFont(font);
+    }
+    
+    // Activer les étiquettes pour la légende
+    series->setLabelsVisible(true);
+    
+    // Définir le style des étiquettes
+    series->setLabelsPosition(QPieSlice::LabelInsideHorizontal);
+    
+    // Créer le graphique
+    QChart *chart = new QChart();
+    chart->addSeries(series);
+    chart->setTitle("Répartition des appareils par marque");
+    
+    // Configurer la légende
+    chart->legend()->setVisible(true);
+    chart->legend()->setAlignment(Qt::AlignRight);
+    chart->legend()->setMarkerShape(QLegend::MarkerShapeRectangle);
+    
+    // Ajuster la taille de la police de la légende
+    QFont legendFont = chart->legend()->font();
+    legendFont.setPointSize(10);
+    chart->legend()->setFont(legendFont);
+    
+    // Activer les animations
+    chart->setAnimationOptions(QChart::AllAnimations);
+
+    // Créer la vue du graphique
+    QChartView *chartView = new QChartView(chart);
+    chartView->setRenderHint(QPainter::Antialiasing);
+    chartView->setMinimumSize(800, 600);
+
+    // Créer une boîte de dialogue pour afficher le graphique
+    QDialog *chartDialog = new QDialog(this);
+    chartDialog->setWindowTitle("Statistiques des appareils par marque");
+    chartDialog->setMinimumSize(850, 650);
+    QVBoxLayout *layout = new QVBoxLayout(chartDialog);
+    layout->addWidget(chartView);
+    
+    // Ajouter un bouton pour exporter en PDF
+    QPushButton *btnExportPDF = new QPushButton("Exporter en PDF", chartDialog);
+    btnExportPDF->setStyleSheet("background-color: #DC3545; color: white; font-weight: bold; padding: 8px;");
+    connect(btnExportPDF, &QPushButton::clicked, this, [=]() {
+        QString fileName = QFileDialog::getSaveFileName(this, "Enregistrer le graphique", 
+                                                      QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation),
+                                                      "Fichiers PDF (*.pdf)");
+        if (!fileName.isEmpty()) {
+            if (!fileName.endsWith(".pdf", Qt::CaseInsensitive))
+                fileName += ".pdf";
+                
+            QPdfWriter writer(fileName);
+            writer.setPageSize(QPageSize(QPageSize::A4));
+            
+            QPainter painter(&writer);
+            chartView->render(&painter);
+            painter.end();
+            
+            QMessageBox::information(this, "Succès", "Le graphique a été exporté avec succès !");
+        }
+    });
+    
+    layout->addWidget(btnExportPDF, 0, Qt::AlignRight | Qt::AlignBottom);
+    
+    chartDialog->exec();
 }
 
 // ==================== GESTION DES CLIENTS ====================
@@ -826,23 +979,85 @@ void MainWindow::on_btnSupprimerAppareil_clicked()
     }
 }
 
+// Fonction utilitaire pour afficher les noms des champs de texte
+void MainWindow::afficherChampsTexte() {
+    qDebug() << "Liste des champs de texte (QLineEdit) dans l'interface :";
+    QList<QLineEdit*> lineEdits = findChildren<QLineEdit*>();
+    for (QLineEdit* lineEdit : lineEdits) {
+        qDebug() << "- " << lineEdit->objectName();
+    }
+}
+
 void MainWindow::on_btnRechercherAppareil_clicked()
 {
-    QString valeur = ui->lineEditNumeroSerie->text();
-
+    // Afficher les noms des champs de texte pour le débogage
+    afficherChampsTexte();
+    
+    // Utiliser directement le champ lineEdit_5 qui est le bon champ de recherche
+    QString valeur = ui->lineEdit_5->text();
+    QString critere = ui->comboBoxCritereAppareil->currentText();
+    
+    qDebug() << "Champ de recherche utilisé: lineEdit_5";
+    
+    qDebug() << "Recherche en cours - Valeur:" << valeur << "Critère:" << critere;
+    
     if(valeur.isEmpty()) {
-        QMessageBox::warning(this, "Champ requis", "Veuillez saisir un numéro de série!");
+        qDebug() << "Erreur: Champ de recherche vide";
+        QMessageBox::warning(this, "Champ requis", "Veuillez saisir une valeur de recherche !");
         return;
     }
-
-    ui->tableViewAppareils->setModel(app.rechercher(valeur));
+    
+    // If searching by serial number, validate it's a number
+    if (critere == "Numéro Série") {
+        bool ok;
+        int numSerie = valeur.toInt(&ok);
+        if (!ok || numSerie <= 0) {
+            qDebug() << "Erreur: Numéro de série invalide";
+            QMessageBox::warning(this, "Format invalide", "Le numéro de série doit être un nombre positif !");
+            return;
+        }
+    }
+    
+    qDebug() << "Appel de app.rechercher avec valeur:" << valeur << "et critère:" << critere;
+    
+    // Call the search function with the search criteria
+    QSqlQueryModel *model = app.rechercher(valeur, critere);
+    
+    qDebug() << "Nombre de résultats trouvés:" << model->rowCount();
+    
+    if (model->rowCount() == 0) {
+        qDebug() << "Aucun résultat trouvé pour la recherche";
+        QMessageBox::information(this, "Recherche", "Aucun appareil trouvé avec ces critères.");
+    } else {
+        qDebug() << "Résultats trouvés, mise à jour du modèle";
+    }
+    
+    ui->tableViewAppareils->setModel(model);
+    qDebug() << "Modèle de table mis à jour";
 }
 
 void MainWindow::on_btnReinitialiserAppareil_clicked()
 {
-    // Tri par numéro série comme indiqué dans l'interface "trier par numero serie"
+    // Clear the search input field
+    ui->lineEdit->clear();
+    
+    // Reset the search criteria to default (Numéro Série)
+    ui->comboBoxCritereAppareil->setCurrentIndex(0);
+    
+    // Refresh the table to show all devices
+    refreshAppareilTable();
+    
+    // Toggle sort order and update button text
+    sortOrderAscending_ = !sortOrderAscending_;
+    QString buttonText = sortOrderAscending_ ? "Trier par date ↑" : "Trier par date ↓";
+    ui->btnReinitialiserAppareil->setText(buttonText);
+    
+    // Exécuter la requête avec le tri approprié
     QSqlQueryModel* model = new QSqlQueryModel();
-    model->setQuery("SELECT NUM_SERIE, TYPE, MARQUE, MODELE, DATE_ACQ, ETAT, CIN_CLIENT FROM APPAREILLES ORDER BY NUM_SERIE");
+    QString query = "SELECT NUM_SERIE, TYPE, MARQUE, MODELE, DATE_ACQ, ETAT, CIN_CLIENT FROM APPAREILLES ";
+    query += sortOrderAscending_ ? "ORDER BY DATE_ACQ ASC" : "ORDER BY DATE_ACQ DESC";
+    
+    model->setQuery(query);
 
     model->setHeaderData(0, Qt::Horizontal, QObject::tr("Numéro Série"));
     model->setHeaderData(1, Qt::Horizontal, QObject::tr("Type"));
@@ -865,6 +1080,88 @@ void MainWindow::on_tableViewAppareils_clicked(const QModelIndex &index)
     ui->lineEditMarque->setText(ui->tableViewAppareils->model()->index(row, 2).data().toString());
     ui->lineEditModele->setText(ui->tableViewAppareils->model()->index(row, 3).data().toString());
     ui->dateEditAchat->setDate(ui->tableViewAppareils->model()->index(row, 4).data().toDate());
+}
+
+void MainWindow::on_btnVieAppareil_clicked()
+{
+    // Vérifier si un appareil est sélectionné
+    QModelIndexList selectedIndexes = ui->tableViewAppareils->selectionModel()->selectedIndexes();
+    if (selectedIndexes.isEmpty()) {
+        QMessageBox::warning(this, "Aucune sélection", "Veuillez sélectionner un appareil pour afficher son historique de vie.");
+        return;
+    }
+
+    // Récupérer le numéro de série de l'appareil sélectionné
+    int row = selectedIndexes.first().row();
+    int numSerie = ui->tableViewAppareils->model()->index(row, 0).data().toInt();
+    QString marque = ui->tableViewAppareils->model()->index(row, 2).data().toString();
+    QString modele = ui->tableViewAppareils->model()->index(row, 3).data().toString();
+
+    // Créer une requête pour récupérer l'historique des réparations de l'appareil
+    QSqlQuery query;
+    query.prepare("SELECT DATE_REC, DATE_FIN_EST, DES_PANNE, COUT, STATUT_R AS STATUT "
+                  "FROM REPARATIONS "
+                  "WHERE NUM_SERIE = :numSerie "
+                  "ORDER BY DATE_REC DESC");
+    query.bindValue(":numSerie", numSerie);
+
+    if (!query.exec()) {
+        QMessageBox::critical(this, "Erreur", "Erreur lors de la récupération de l'historique des réparations: " + query.lastError().text());
+        return;
+    }
+
+    // Créer une boîte de dialogue pour afficher l'historique
+    QDialog *dialog = new QDialog(this);
+    dialog->setWindowTitle("Vie de l'appareil - " + marque + " " + modele + " (S/N: " + QString::number(numSerie) + ")");
+    dialog->setMinimumSize(800, 400);
+
+    QVBoxLayout *layout = new QVBoxLayout(dialog);
+    
+    // Créer un tableau pour afficher les réparations
+    QTableView *tableView = new QTableView(dialog);
+    QStandardItemModel *model = new QStandardItemModel(0, 5, dialog);
+    
+    // Configurer les en-têtes du tableau
+    model->setHorizontalHeaderLabels({"Date début", "Date fin", "Description", "Coût", "Statut"});
+    
+    // Remplir le tableau avec les données de la requête
+    int rowCount = 0;
+    while (query.next()) {
+        model->insertRow(rowCount);
+        model->setData(model->index(rowCount, 0), query.value(0).toDate().toString("dd/MM/yyyy"));
+        model->setData(model->index(rowCount, 1), query.value(1).toDate().toString("dd/MM/yyyy"));
+        model->setData(model->index(rowCount, 2), query.value(2));
+        model->setData(model->index(rowCount, 3), QString::number(query.value(3).toDouble(), 'f', 2) + " DT");
+        model->setData(model->index(rowCount, 4), query.value(4));
+        rowCount++;
+    }
+
+    // Configurer le tableau
+    tableView->setModel(model);
+    tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    tableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    
+    // Ajouter un résumé
+    QLabel *summaryLabel = new QLabel(dialog);
+    summaryLabel->setText(QString("<b>Résumé pour l'appareil %1 %2 (S/N: %3):</b> %4 réparation(s) trouvée(s)")
+                         .arg(marque, modele, QString::number(numSerie), QString::number(rowCount)));
+    
+    // Ajouter les widgets au layout
+    layout->addWidget(summaryLabel);
+    layout->addWidget(tableView);
+    
+    // Ajouter un bouton de fermeture
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Close, dialog);
+    layout->addWidget(buttonBox);
+    
+    // Connecter le bouton de fermeture
+    connect(buttonBox, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
+    
+    // Afficher la boîte de dialogue modale
+    dialog->setLayout(layout);
+    dialog->exec();
 }
 
 // ==================== GESTION DES RÉPARATIONS ====================
@@ -1148,12 +1445,12 @@ void MainWindow::on_tableViewReparationsListe_clicked(const QModelIndex &index)
     ui->lineEdit->setText(ui->tableViewReparationsListe->model()->index(row, 8).data().toString()); // MAT_REP
 }
 
-// ==================== STATISTIQUES ====================
-
 void MainWindow::on_btnGenererRapport_clicked()
 {
-    QMessageBox::information(this, "Fonctionnalité", "Génération de rapport - Fonctionnalité à implémenter");
+    // Implementation for generating reports
+    QMessageBox::information(this, "Génération de rapport", "La fonctionnalité de génération de rapport n'est pas implémentée.");
 }
+
 void MainWindow::highlightEmptyFields(const QStringList& fields, const QStringList& values)
 {
     // Réinitialiser tous les styles d'abord

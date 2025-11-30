@@ -44,7 +44,7 @@ public:
     QSqlQueryModel* afficher();
     bool supprimer(int numSerie);
     bool modifier(int numSerie);
-    QSqlQueryModel* rechercher(QString valeur);
+    QSqlQueryModel* rechercher(const QString& valeur, const QString& typeRecherche = "");
     bool existeDeja(int numSerie);
     bool clientExiste(int cinClient);
     QSqlQueryModel* getClients();

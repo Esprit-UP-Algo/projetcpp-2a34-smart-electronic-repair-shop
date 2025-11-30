@@ -1,6 +1,7 @@
 #include "client.h"
 #include <QMessageBox>
 #include <QRegularExpression>
+#include <QSqlError>
 
 Client::Client() {}
 
@@ -164,8 +165,11 @@ QSqlQueryModel* Client::rechercher(QString critere, QString valeur)
     QSqlQuery query;
     query.prepare(requete);
     query.bindValue(":valeur", "%" + valeur + "%");
-    query.exec();
+    if (!query.exec()) {
+        qDebug() << "Erreur lors de l'exécution de la requête:" << query.lastError().text();
+        return model;
+    }
 
-    model->setQuery(query);
+    model->setQuery(std::move(query));
     return model;
 }

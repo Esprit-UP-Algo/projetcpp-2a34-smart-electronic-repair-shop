@@ -3,6 +3,10 @@
 
 #include <QMainWindow>
 #include <QRegularExpressionValidator>
+#include <QtCharts>
+#include <QChartView>
+#include <QPieSeries>
+#include <QPieSlice>
 
 // Inclure les classes nécessaires
 #include "employe.h"
@@ -45,6 +49,7 @@ private slots:
     void on_btnSupprimerAppareil_clicked();
     void on_btnRechercherAppareil_clicked();
     void on_btnReinitialiserAppareil_clicked();
+    void on_btnVieAppareil_clicked();
     void on_tableViewAppareils_clicked(const QModelIndex &index);
 
     // Slots pour les réparations
@@ -57,6 +62,8 @@ private slots:
 
     // Slots pour les statistiques
     void on_btnGenererRapport_clicked();
+    void on_btnStatistiquesAppareil_clicked();
+
 
     // Nouveaux slots pour le contrôle de saisie et tri
     void onTextChanged(const QString &text);
@@ -81,6 +88,9 @@ private:
     void setupValidators();
     void highlightEmptyFields(const QStringList& fields, const QStringList& values);
 
+    // Variable pour suivre l'ordre de tri
+    bool sortOrderAscending_ = true;
+
     // Méthodes de validation
     bool validateCIN(const QString& cinStr, int& cin);
     bool validateTelephone(const QString& telephone);
@@ -91,6 +101,7 @@ private:
     bool validateIdReparation(const QString& idStr, int& idReparation);
     bool validateTextField(const QString& text, const QString& fieldName);
     bool validateRequiredFields(const QStringList& fields, const QStringList& values, const QString& formName);
+    void afficherChampsTexte(); // Fonction utilitaire pour le débogage
 };
 
 #endif // MAINWINDOW_H
