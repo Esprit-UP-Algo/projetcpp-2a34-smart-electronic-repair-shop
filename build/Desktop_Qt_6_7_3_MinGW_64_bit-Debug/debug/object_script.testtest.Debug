@@ -1,0 +1,12 @@
+debug/appareils.o
+debug/client.o
+debug/connection.o
+debug/employe.o
+debug/main.o
+debug/mainwindow.o
+debug/pdfexporter.o
+debug/reparations.o
+debug/statistics.o
+debug/moc_mainwindow.o
+debug/moc_pdfexporter.o
+debug/moc_statistics.o

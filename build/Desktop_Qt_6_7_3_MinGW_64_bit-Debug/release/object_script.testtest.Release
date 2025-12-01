@@ -1,0 +1,12 @@
+release/appareils.o
+release/client.o
+release/connection.o
+release/employe.o
+release/main.o
+release/mainwindow.o
+release/pdfexporter.o
+release/reparations.o
+release/statistics.o
+release/moc_mainwindow.o
+release/moc_pdfexporter.o
+release/moc_statistics.o
